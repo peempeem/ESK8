@@ -5,7 +5,7 @@ void WelcomeScreen::draw(TFT_eSprite* sprite) {
     float stage = rate.getStageSin();
     float circleSize = circleDeviation * stage + circleDefault;
     Point center = {dimensions.width / 2, dimensions.height / 2};
-    sprite->setFreeFont(&Orbitron_Light_24);
+    sprite->setFreeFont(&Orbitron_Light_32);
     sprite->setTextDatum(MC_DATUM);
     sprite->setTextColor(textColor.as16Bit());
     sprite->drawString(

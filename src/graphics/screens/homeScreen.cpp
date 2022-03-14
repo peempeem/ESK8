@@ -2,12 +2,32 @@
 
 void HomeScreen::draw(TFT_eSprite* sprite) {
     drawBackground(sprite);
-    boardBattery.dimensions.width = dimensions.width * 0.75f;
+
+    boardBattery.dimensions.width = dimensions.width * 0.7f;
     boardBattery.dimensions.height = dimensions.height * 0.2f;
-    boardBattery.center.x = dimensions.width * 0.625f;
-    boardBattery.center.y = dimensions.height * 0.9f;
+    boardBattery.center.x = boardBattery.dimensions.width / 2 + dimensions.width * 0.3f;
+    boardBattery.center.y = boardBattery.dimensions.height / 2 + dimensions.height * 0.8f;
     boardBattery.draw(sprite);
-    battery.dimensions = Dimension{128, 128};
-    battery.point = Point{0, 0};
-    battery.draw(sprite);
+
+    power.dimensions.height = dimensions.height * 0.9f;
+    power.dimensions.width = dimensions.width * 0.2f;
+    power.center.x = power.dimensions.width / 2 + dimensions.width * 0.05;
+    power.center.y = power.dimensions.height / 2 + dimensions.height * 0.05;
+    power.draw(sprite);
+
+    sprite->setFreeFont(&Orbitron_Light_32);
+    sprite->setTextDatum(MC_DATUM);
+    sprite->setTextColor(textColor.as16Bit());
+    Point center {
+        boardBattery.center.x,
+        dimensions.height * 0.15f
+    };
+    sprite->drawString(
+        speed.c_str(),
+        center.x,
+        center.y,
+        1
+    );
 }
+
+void HomeScreen::setSpeed(float speed) { this->speed = String(speed); }

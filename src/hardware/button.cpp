@@ -115,7 +115,7 @@ TapEvent Button::getTapEvent() {
 }
 
 /*
- * DESCRIPTION: Getter function for elapsed time since last button press
+ * DESCRIPTION: Getter function for elapsed time (milliseconds) since last button press
  * RETURNS:     time since last button press
  */
 long Button::pressedElapsedTime() {
@@ -125,7 +125,7 @@ long Button::pressedElapsedTime() {
 }
 
 /*
- * DESCRIPTION: Getter function for elapsed time since last button release
+ * DESCRIPTION: Getter function for elapsed time (milliseconds) since last button release
  * RETURNS:     time since last button release
  */
 long Button::releasedElapsedTime() {
