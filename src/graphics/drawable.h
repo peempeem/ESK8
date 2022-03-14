@@ -1,7 +1,7 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-#include "../rate.h"
+#include "../util/rate.h"
 #include "color.h"
 #include <TFT_eSPI.h>
 
