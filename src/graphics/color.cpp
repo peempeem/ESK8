@@ -29,7 +29,7 @@ uint16_t cvtC15toC16(uint16_t c15) {
 //////
 
 /*
- * DESCRIPTION: Default color class constructor
+ * DESCRIPTION: Default Color class constructor
  */
 Color::Color() {
     _r = 0;
@@ -86,7 +86,7 @@ int Color::b() { return _b; }
 
 /*
  * DESCRIPTION: Getter function for making a copy of current color
- * RETURNS:     current color class
+ * RETURNS:     current color
  */
 Color Color::getColor() { return Color(_r, _g, _b); }
 
@@ -97,49 +97,64 @@ Color Color::getColor() { return Color(_r, _g, _b); }
 uint16_t Color::as16Bit() { return c16; }
  
  /*
- * DESCRIPTION: Given two colors, 
- * RETURNS:     16-bit color
+ * DESCRIPTION: Given two colors, blend them together given a 0 to 1 bias
+ * INPUTS:      other   - other color to blend with
+ *              bias    - 0 to 1 value (0 is closest to current color)
+ * RETURNS:     blended color
  */
 Color Color::blend(Color& other, float bias) {
     if (bias <= 0)
-        return Color(_r, _g, _b);
+        return getColor();
     else if (bias >= 1)
         return other.getColor();
-    int r = _r + (int) ((other.r() - _r) * bias);
-    int g = _g + (int) ((other.g() - _g) * bias);
-    int b = _b + (int) ((other.b() - _b) * bias);
-    return Color(r, g, b);
+    return Color(
+        _r + (int) ((other.r() - _r) * bias),
+        _g + (int) ((other.g() - _g) * bias),
+        _b + (int) ((other.b() - _b) * bias)
+    );
 }
 
 //////
 //      ColorGradient CLASS FUNCTIONS  
 //////
 
-
+/*
+ * DESCRIPTION: Sets color position palette
+ * INPUTS:      colors - vector of color positions
+ */
 void ColorGradient::setColors(std::vector<ColorPosition> colors) {
     if (!colors.empty())
         std::sort(colors.begin(), colors.end());
-    _colors = colors;
+    this->colors = colors;
 }
 
+/*
+ * DESCRIPTION: Given a linear position on the color position palette,
+                return a color that is a blend of the two closest colors
+ * INPUTS:      position    - position on color position palette
+ * RETURNS:     blended color
+ */
 Color ColorGradient::colorAtPosition(float position) {
-    if (_colors.empty())
-        return Color(0, 0, 0);
-    int idx = -1;
-    for (int i = 0; i < _colors.size(); i++) {
-        if (_colors[i].position > position) {
+    if (colors.empty())
+        return Color();
+    int idx = -1;       // index of color just above position
+    for (int i = 0; i < colors.size(); i++) {
+        if (colors[i].position > position) {
             idx = i;
             break;
-        } else if (_colors[i].position == position)
-            return _colors[i].color;
+        } else if (colors[i].position == position)
+            return colors[i].color;
     }
     if (idx == -1)
-        return _colors.back().color;
+        return colors.back().color;
     else if (idx == 0)
-        return _colors[0].color;
-    float diff = _colors[idx].position - _colors[idx - 1].position;
-    if (diff == 0)
-        return _colors[idx - 1].color;
-    float bias = (position - _colors[idx - 1].position) / diff;
-    return _colors[idx - 1].color.blend(_colors[idx].color, bias);
+        return colors[0].color;
+    float dist = colors[idx].position - colors[idx - 1].position;
+    if (dist == 0)
+        return colors[idx].color;
+    // blend color above and below position
+    return colors[idx - 1].color.blend(
+        colors[idx].color, 
+        (position - colors[idx - 1].position) / dist
+    );
 }

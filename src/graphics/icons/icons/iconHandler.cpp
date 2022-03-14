@@ -50,7 +50,7 @@ void IconHandler::draw(TFT_eSprite* sprite) {
         icon->dimensions = dimensions;
         icon->point = point;
         if (_blinking)
-            icon->blendBias = 0.5f + _rate.getStageNCos() / 2.0f;
+            icon->blendBias = 0.5f - _rate.getStageCos() / 2.0f;
         icon->draw(sprite);
     }
 }

@@ -8,9 +8,6 @@ extern "C" {
 // function to read core temperature
 uint8_t temprature_sens_read();
 
-// dummy constructor
-Hardware::Hardware() {}
-
 /*
  * DESCRIPTION: Calculates current dynamic memory usage using esp32 function
  * RETURNS:     memory usage

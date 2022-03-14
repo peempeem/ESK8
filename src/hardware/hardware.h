@@ -8,7 +8,7 @@
 // base hardware class
 class Hardware {
     public:
-        Hardware();
+        Hardware() {}
 
         int     memoryUsage();
         float   memoryUsagePercent();

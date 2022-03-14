@@ -8,6 +8,7 @@ bool c15IsTransparent(uint16_t c15);
 
 uint16_t cvtC15toC16(uint16_t c15);
 
+// 24 bit color class
 class Color {
     public:
         Color();
@@ -26,6 +27,7 @@ class Color {
         uint16_t c16;
 };
 
+// basic colors
 const static Color BLACK        (0,     0,      0   );
 const static Color WHITE        (255,   255,    255 );
 const static Color GRAY         (100,   100,    100 );
@@ -35,8 +37,9 @@ const static Color RED          (255,   0,      0   );
 const static Color FOREST_GREEN (0,     220,    60  );
 const static Color DARK_GRAY    (20,    20,     20  );
 const static Color LIGHT_GRAY   (200,   200,    200 );
-const static Color ALMOST_BLACK (9,     9,      9   );
+const static Color ALMOST_BLACK (9,     5,      9   );
 
+// used in ColorGradient
 struct ColorPosition {
     Color color;
     float position;
@@ -54,6 +57,7 @@ struct ColorPosition {
     }
 };
 
+// blends a list of colors on a linear scale
 class ColorGradient {
     public:
         ColorGradient() { }
@@ -62,7 +66,7 @@ class ColorGradient {
         Color colorAtPosition(float position);
 
     private:
-        std::vector<ColorPosition> _colors;
+        std::vector<ColorPosition> colors;
 };
 
 #endif

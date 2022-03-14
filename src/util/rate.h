@@ -1,25 +1,24 @@
 #ifndef RATE_H
 #define RATE_H
 
-#include <Arduino.h>
-
+// class used for scheduling tasks
 class Rate {
     public:
-        bool enabled = true;
+        bool    enabled = true;     // rate enable flag
 
-        Rate() { enabled = false; };
+        Rate();
         Rate(float rate);
 
-        void setRate(float rate);
-        bool isReady();
+        void    setRate(float rate);
+        bool    isReady();
 
-        float getStage();
-        float getStageSin() { return sin(getStage() * 2 * PI); }
-        float getStageNCos() { return -cos(getStage() * 2 * PI); }
+        float   getStage();
+        float   getStageSin();
+        float   getStageCos();
 
     private:
-        int inverseRate = 0;
-        int last = 0;
+        int     inverseRate = 0;    // (1 / Rate) cache
+        int     last = 0;           // last time
 };
 
 #endif
