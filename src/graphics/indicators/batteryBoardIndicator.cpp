@@ -18,7 +18,7 @@ void BoardBatteryIndicator::setBattery(float battery) {
         battery = 0;
     else if (battery > 1)
         battery = 1;
-    _battery = battery;
+    this->battery = battery;
 }
 
 void BoardBatteryIndicator::draw(TFT_eSprite* sprite) {
@@ -52,7 +52,7 @@ void BoardBatteryIndicator::draw(TFT_eSprite* sprite) {
     );
 
     // battery bar
-    w = barWidth * _battery * scale;
+    w = barWidth * battery * scale;
     h = barHeight * scale;
     float ww = (barWidth * scale) / 2.0f;
     float hh = h / 2.0f;
@@ -63,7 +63,7 @@ void BoardBatteryIndicator::draw(TFT_eSprite* sprite) {
         (int) w,
         (int) h,
         (int) radius,
-        colorGradient.colorAtPosition(_battery).as16Bit()
+        colorGradient.colorAtPosition(battery).as16Bit()
     );
 
     w = deckWidth * scale;

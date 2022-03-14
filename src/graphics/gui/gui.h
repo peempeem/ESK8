@@ -7,9 +7,9 @@
 class GUI {
     public:
         Rate refreshRate = Rate(60);
-        NotificationBar notificationBar;
+        NotificationBar notifications;
 
-        GUI(int rotation=2, int colorDepth=16);
+        GUI(int rotation=2, int notificaitonHeight=32, int colorDepth=16);
 
         bool containsScreen(Screen* screen);
         void addScreen(Screen* screen);
@@ -21,11 +21,11 @@ class GUI {
     private:
         TFT_eSPI* display;
         TFT_eSprite* sprite = NULL;
-        TFT_eSprite* _notificationSprite = NULL;
+        TFT_eSprite* notificationSprite = NULL;
+        Dimension dimensions;
+        std::vector<Screen*> screens;
         Screen* mainScreen = NULL;
         Screen* transitionScreen = NULL;
-        std::vector<Screen*> screens;
-        Dimension _screenDimensions;
         ScreenTransition transitions;
 };
 

@@ -26,7 +26,7 @@ class BoardBatteryIndicator : public Indicator {
         void draw(TFT_eSprite* sprite);
 
     protected:
-        float _battery = 0.0f;
+        float battery = 0.0f;
 
         float width();
         float height();

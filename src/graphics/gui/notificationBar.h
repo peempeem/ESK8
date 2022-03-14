@@ -7,8 +7,8 @@
 class NotificationBar {
     public:
         Dimension dimensions;
-        BatteryIcon batteryIcon;
-        WiFiIcon wifiIcon;
+        BatteryIcon battery;
+        WiFiIcon wifi;
         Color backgroundColor = ALMOST_BLACK;
 
         NotificationBar();
@@ -17,7 +17,7 @@ class NotificationBar {
         void removeIcon(IconHandler* icon);
         void draw(TFT_eSprite* sprite);
     private:
-        std::vector<IconHandler*> _icons;
+        std::vector<IconHandler*> icons;
 };
 
 #endif

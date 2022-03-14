@@ -2,15 +2,13 @@
 #define HOMESCREEN_H
 
 #include "../drawable.h"
-#include "boardBatteryIndicator.h"
+#include "../indicators/boardBatteryIndicator.h"
 #include "../icons/batteryIcon.h"
-
-
 
 class HomeScreen : public Screen {
     public:
-        BoardBatteryIndicator boardBatteryIndicator;
-        BatteryIcon batteryIcon;
+        BoardBatteryIndicator boardBattery;
+        BatteryIcon battery;
 
         void draw(TFT_eSprite* sprite);
 };

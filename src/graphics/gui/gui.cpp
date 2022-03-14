@@ -1,26 +1,26 @@
 #include "gui.h"
 
-GUI::GUI(int rotation, int colorDepth) {
+GUI::GUI(int rotation, int notificaitonHeight, int colorDepth) {
     display = new TFT_eSPI();
     display->init();
     display->setRotation(rotation);
     display->fillScreen(0);
 
     bool isEven = rotation % 2 == 0;
-    _screenDimensions.width = isEven ? TFT_WIDTH : TFT_HEIGHT;
-    _screenDimensions.height = isEven ? TFT_HEIGHT : TFT_WIDTH;
+    dimensions.width = isEven ? TFT_WIDTH : TFT_HEIGHT;
+    dimensions.height = isEven ? TFT_HEIGHT : TFT_WIDTH;
 
-    notificationBar.dimensions.width = _screenDimensions.width;
-    notificationBar.dimensions.height = 32;
-    _screenDimensions.height -= notificationBar.dimensions.height;
+    notifications.dimensions.width = dimensions.width;
+    notifications.dimensions.height = notificaitonHeight;
+    dimensions.height -= notifications.dimensions.height;
 
     sprite = new TFT_eSprite(display);
     sprite->setColorDepth(colorDepth);
-    sprite->createSprite(_screenDimensions.width, _screenDimensions.height);
+    sprite->createSprite(dimensions.width, dimensions.height);
 
-    _notificationSprite = new TFT_eSprite(display);
-    _notificationSprite->setColorDepth(colorDepth);
-    _notificationSprite->createSprite(notificationBar.dimensions.width, notificationBar.dimensions.height);
+    notificationSprite = new TFT_eSprite(display);
+    notificationSprite->setColorDepth(colorDepth);
+    notificationSprite->createSprite(notifications.dimensions.width, notifications.dimensions.height);
 }
 
 bool GUI::containsScreen(Screen* screen) {
@@ -33,8 +33,8 @@ bool GUI::containsScreen(Screen* screen) {
 
 void GUI::addScreen(Screen* screen) {
     if (!containsScreen(screen)) {
-        screen->dimensions = _screenDimensions;
-        screen->point = Point{0, notificationBar.dimensions.height};
+        screen->dimensions = dimensions;
+        screen->point = Point{0, notifications.dimensions.height};
         screens.push_back(screen);
     }
 }
@@ -63,13 +63,12 @@ void GUI::update() {
         if (transitions.isTransitioning()) {
             if (transitions.draw(sprite))
                 mainScreen = transitionScreen;
-        }
-        else {
+        } else {
             if (mainScreen != NULL)
                 mainScreen->draw(sprite);
             sprite->pushSprite(mainScreen->point.x, mainScreen->point.y);
         }
-        notificationBar.draw(_notificationSprite);
-        _notificationSprite->pushSprite(0, 0);
+        notifications.draw(notificationSprite);
+        notificationSprite->pushSprite(0, 0);
     }
 }

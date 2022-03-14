@@ -1,7 +1,7 @@
 #ifndef TRANSITIONS_H
 #define TRANSITIONS_H
 
-#include "drawable.h"
+#include "../drawable.h"
 
 #define TRANSITION_NONE         0
 #define TRANSITION_PUSH_RIGHT   1

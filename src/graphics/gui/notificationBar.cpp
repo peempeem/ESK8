@@ -1,32 +1,32 @@
 #include "notificationBar.h"
 
 NotificationBar::NotificationBar() {
-    batteryIcon.blendColor = backgroundColor;
-    wifiIcon.blendColor = backgroundColor;
-    _icons.push_back(&batteryIcon);
-    _icons.push_back(&wifiIcon);
+    battery.blendColor = backgroundColor;
+    wifi.blendColor = backgroundColor;
+    icons.push_back(&battery);
+    icons.push_back(&wifi);
 }
 
 void NotificationBar::addIcon(IconHandler* icon) {
-    for (IconHandler* i : _icons) {
+    for (IconHandler* i : icons) {
         if (i == icon)
             return;
     }
     icon->blendColor = backgroundColor;
-    _icons.push_back(icon);
+    icons.push_back(icon);
 }
 
 void NotificationBar::removeIcon(IconHandler* icon) {
-    for (int i = 0; i < _icons.size(); i++) {
-        if (_icons[i] == icon && _icons[i] != &batteryIcon && _icons[i] != &wifiIcon)
-            _icons.erase(_icons.begin() + i);
+    for (int i = 0; i < icons.size(); i++) {
+        if (icons[i] == icon && icons[i] != &battery && icons[i] != &wifi)
+            icons.erase(icons.begin() + i);
     }
 }
 
 void NotificationBar::draw(TFT_eSprite* sprite) {
     sprite->fillRect(0, 0, dimensions.width, dimensions.height, backgroundColor.as16Bit());
     int x = dimensions.width - dimensions.height;
-    for (IconHandler* icon : _icons) {
+    for (IconHandler* icon : icons) {
         icon->dimensions.width = dimensions.height;
         icon->dimensions.height = dimensions.height;
         icon->point.x = x;

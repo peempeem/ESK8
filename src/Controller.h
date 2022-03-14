@@ -6,7 +6,6 @@
 #include "hardware/adc.h"
 #include "hardware/button.h"
 
-
 #define PIN_IN              34  // pin for board input voltage
 #define PIN_POWER           14  // pin for chip voltage
 #define PIN_BATTERY         39
@@ -24,9 +23,8 @@
 
 #define BATTERY_LOW         0.2f
 
-
 // class for interfacing with hardware on the controller
-class Controller : Hardware {
+class Controller : public Hardware {
     public:
         Rate    sampleRate = Rate(100);         // hardware main sample rate
         Rate    batterySampleRate = Rate(4);    // power-related sample rate
