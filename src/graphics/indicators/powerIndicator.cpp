@@ -34,7 +34,7 @@ void PowerIndicator::draw(TFT_eSprite* sprite) {
     );
 
     float scale = dimensions.height / (float) lines;
-    FPoint p{
+    FPoint p {
         center.x - lineWidth * dimensions.width / 2.0f, 
         center.y - dimensions.height / 2.0f + scale / 2.0f
     };

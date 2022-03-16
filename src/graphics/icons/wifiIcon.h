@@ -16,6 +16,8 @@ class WiFiIcon : public IconHandler {
         WiFi3 wifi3;
         WiFiFull wifiFull;
 
+        Rate rate = Rate(1.5f);
+
         WiFiIcon() {
             addIcon(&wifiEmpty);
             addIcon(&wifi1);
@@ -23,7 +25,15 @@ class WiFiIcon : public IconHandler {
             addIcon(&wifi3);
             addIcon(&wifiFull);
             showIcon(&wifiEmpty);
-        }
+        };
+
+        void startCycle();
+        void stopCycle();
+        void update();
+    
+    private:
+        bool cycling = false;
+        int currentIcon;
 };
 
 #endif

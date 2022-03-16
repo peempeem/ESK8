@@ -80,13 +80,13 @@ void Controller::update() {
             }
         }
 
-        int scanned = WiFi.scanComplete();
+        /*int scanned = WiFi.scanComplete();
         if (scanned == -2)
             WiFi.scanNetworks(true, true);
         else if (scanned >= 0) {
             _wifiNetworks = scanned;
             WiFi.scanDelete();
-        }
+        }*/
     }
 }
 

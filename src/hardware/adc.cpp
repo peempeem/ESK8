@@ -2,7 +2,7 @@
 
 // esp32 analogRead rectifying calibration
 const static float adcTable[] = {
-    0.031429,
+    0,
     0.032626,
     0.033823,
     0.035018,
@@ -4097,7 +4097,7 @@ const static float adcTable[] = {
     3.280157,
     3.281235,
     3.282315,
-    3.283397
+    3.3
 };
 
 /*

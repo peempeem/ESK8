@@ -9,14 +9,16 @@ class HomeScreen : public Screen {
     public:
         BoardBatteryIndicator boardBattery;
         PowerIndicator power;
-        Color textColor = WHITE;
+        Color speedColor = WHITE;
+        Color speedDescColor = GRAY;
 
         void draw(TFT_eSprite* sprite);
 
         void setSpeed(float speed);
     
     private:
-        String speed = "22.4";
+        String speed = "0.0";
+        String speedDesc = "mph";
 };
 
 #endif

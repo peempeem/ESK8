@@ -17,7 +17,7 @@ void HomeScreen::draw(TFT_eSprite* sprite) {
 
     sprite->setFreeFont(&Orbitron_Light_32);
     sprite->setTextDatum(MC_DATUM);
-    sprite->setTextColor(textColor.as16Bit());
+    sprite->setTextColor(speedColor.as16Bit());
     Point center {
         boardBattery.center.x,
         dimensions.height * 0.15f
@@ -28,6 +28,16 @@ void HomeScreen::draw(TFT_eSprite* sprite) {
         center.y,
         1
     );
+
+    sprite->setFreeFont(&Orbitron_Light_24);
+    sprite->setTextColor(speedDescColor.as16Bit());
+    center.y = dimensions.height * 0.3f;
+    sprite->drawString(
+        speedDesc.c_str(),
+        center.x,
+        center.y,
+        1
+    );
 }
 
-void HomeScreen::setSpeed(float speed) { this->speed = String(speed); }
+void HomeScreen::setSpeed(float speed) { this->speed = String(fabs(speed), 1); }
