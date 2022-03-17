@@ -1,8 +1,8 @@
 #include "notificationBar.h"
 
 NotificationBar::NotificationBar() {
-    battery.blendColor = backgroundColor;
-    wifi.blendColor = backgroundColor;
+    battery.backgroundColor = backgroundColor;
+    wifi.backgroundColor = backgroundColor;
     icons.push_back(&battery);
     icons.push_back(&wifi);
 }
@@ -12,7 +12,7 @@ void NotificationBar::addIcon(IconHandler* icon) {
         if (i == icon)
             return;
     }
-    icon->blendColor = backgroundColor;
+    icon->backgroundColor = backgroundColor;
     icons.push_back(icon);
 }
 

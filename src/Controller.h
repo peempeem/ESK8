@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "util/rate.h"
+#include "util/Log.h"
 #include "hardware/hardware.h"
 #include "hardware/adc.h"
 #include "hardware/button.h"

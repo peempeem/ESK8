@@ -8,6 +8,7 @@
 class LeftArrow : public Icon {
     public:
         LeftArrow() : Icon(32, 32) {};
+        const uint16_t* getBitmap();
         void draw(TFT_eSprite* sprite);
 };
 

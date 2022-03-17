@@ -42,28 +42,32 @@ bool Rate::isReady() {
 /*
  * DESCRIPTION: Gets the current progress towards the next scheduled time on
  *              a scaled of 0 to 1
+ * INPUTS:      noChange    - if set, doesn't update last
  * RETURNS:     progress (0 to 1)
  */
-float Rate::getStage() {
+float Rate::getStage(bool noChange) {
     if (!enabled)
         return 0;
     int time = millis();
     float stage = (time - last) / (float) inverseRate;
     if (stage > 1) {
         stage = 1;
-        last = time;
+        if (!noChange)
+            last = time;
     }
     return stage;
 }
 
 /*
  * DESCRIPTION: Gets the current stage but in sin format
+ * INPUTS:      noChange    - if set, doesn't update last
  * RETURNS:     sin(progress)
  */
-float Rate::getStageSin() { return sin(getStage() * 2 * PI); }
+float Rate::getStageSin(bool noChange) { return sin(getStage(noChange) * 2 * PI); }
 
 /*
  * DESCRIPTION: Gets the current stage but in cos format
+ * INPUTS:      noChange    - if set, doesn't update last
  * RETURNS:     cos(progress)
  */
-float Rate::getStageCos() { return cos(getStage() * 2 * PI); }
+float Rate::getStageCos(bool noChange) { return cos(getStage(noChange) * 2 * PI); }

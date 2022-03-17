@@ -8,6 +8,7 @@
 class WiFiFull : public Icon {
     public:
         WiFiFull() : Icon(32, 32) {};
+        const uint16_t* getBitmap();
         void draw(TFT_eSprite* sprite);
 };
 

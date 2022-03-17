@@ -12,9 +12,9 @@ class Rate {
         void    setRate(float rate);
         bool    isReady();
 
-        float   getStage();
-        float   getStageSin();
-        float   getStageCos();
+        float   getStage(bool noChange=false);
+        float   getStageSin(bool noChange=false);
+        float   getStageCos(bool noChange=false);
 
     private:
         int     inverseRate = 0;    // (1 / Rate) cache

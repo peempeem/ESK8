@@ -7,12 +7,15 @@ class IconHandler {
     public:
         Dimension dimensions;
         Point point;
-        Color blendColor = BLACK;
+        Color backgroundColor = BLACK;
+        bool fading = false;
+        float fadeBias = 0.0f;
 
         IconHandler() {}
 
         void addIcon(Icon* icon);
         void showIcon(Icon* icon);
+        void setFadeIcon(Icon* icon);
         Icon* currentIcon();
         void startBlinking(float hertz=1.0f);
         void stopBlinking();
@@ -20,8 +23,9 @@ class IconHandler {
         void draw(TFT_eSprite* sprite);
     protected:
         std::vector<Icon*> _icons;
+        Rate blinkRate;
         int _currentIcon = -1;
-        Rate _rate;
+        int _fadeIcon = -1;
         bool _blinking = false;
 };
 

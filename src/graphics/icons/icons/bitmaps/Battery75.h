@@ -8,6 +8,7 @@
 class Battery75 : public Icon {
     public:
         Battery75() : Icon(32, 32) {};
+        const uint16_t* getBitmap();
         void draw(TFT_eSprite* sprite);
 };
 

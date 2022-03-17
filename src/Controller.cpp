@@ -1,6 +1,7 @@
 #include "Controller.h"
 #include <WiFi.h>
 
+const static char* LOG_HEADER = "Controller";
 
 /*
  * DESCRIPTION: Initializes the hardware on the controller. This function should
@@ -28,7 +29,7 @@ void Controller::init() {
     setCpuFrequencyMhz(240);
 
     // enable wifi
-    WiFi.mode(WIFI_AP);
+    //WiFi.mode(WIFI_AP);
 }
 
 /*
@@ -128,21 +129,21 @@ int Controller::powerState() {
  * DESCRIPTION: Prints performance statistics to serial for debugging
  */
 void Controller::printStats() {
-    Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n");
-    Serial.println(":::::::::::::: HARDWARE STATS ::::::::::::::");
-    Serial.print("Battery Voltage  -> ");
-    Serial.print(_batteryVoltage);
-    Serial.print(" V (");
-    Serial.print(100 * _batteryLevel);
-    Serial.println("%)");
-    Serial.print("Core Temperature -> ");
-    Serial.print(coreTemperature());
-    Serial.println(" C");
-    Serial.print("Memory Usage     -> ");
-    Serial.print(memoryUsage());
-    Serial.print(" bytes (");
-    Serial.print(memoryUsagePercent());
-    Serial.println("%)");
-    Serial.print("WiFi Networks    -> ");
-    Serial.println(_wifiNetworks);
+    //log(DEBUG, LOG_HEADER, "\n\n\n\n\n\n\n\n\n\n\n\n");
+    log(DEBUG, LOG_HEADER, ":::::::::::::: HARDWARE STATS ::::::::::::::");
+    log(DEBUG, LOG_HEADER, "Battery Voltage  -> ", false);
+    logc(_batteryVoltage, false);
+    logc(" V (", false);
+    logc(100 * _batteryLevel, false);
+    logc("%)");
+    log(DEBUG, LOG_HEADER, "Core Temperature -> ", false);
+    logc(coreTemperature(), false);
+    logc(" C");
+    log(DEBUG, LOG_HEADER, "Memory Usage     -> ", false);
+    logc(memoryUsage(), false);
+    logc(" bytes (", false);
+    logc(memoryUsagePercent(), false);
+    logc("%)");
+    log(DEBUG, LOG_HEADER, "WiFi Networks    -> ", false);
+    logc(_wifiNetworks);
 }

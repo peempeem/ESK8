@@ -8,6 +8,7 @@
 class Hot : public Icon {
     public:
         Hot() : Icon(32, 32) {};
+        const uint16_t* getBitmap();
         void draw(TFT_eSprite* sprite);
 };
 

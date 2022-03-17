@@ -88,7 +88,10 @@ void Triangles::draw(TFT_eSprite* sprite) {
         for (int a = 0; a < 3; a++) {
             connection.p2 = closestPoint(points[i], points_copy);
             if (connection.p2 != -1) {
-                connections.push_back(connection);
+                if (!alreadyConnected(connection, connections))
+                    connections.push_back(connection);
+                else
+                    a--;
                 points_copy.erase(points_copy.begin() + connection.p2);
             } else
                 break;
