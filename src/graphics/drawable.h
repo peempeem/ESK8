@@ -48,7 +48,7 @@ class Screen {
         float cornerSize = 0.1f;
         int dots = 15;
         Rate dotsRate = Rate(0.4f);
-        Triangles triangles = Triangles(8);
+        Triangles triangles = Triangles(10);
 
         virtual void draw(TFT_eSprite* sprite) {}
         void drawBackground(TFT_eSprite* sprite);

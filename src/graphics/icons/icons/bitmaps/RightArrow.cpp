@@ -39,4 +39,3 @@ static const uint16_t bitmap[] PROGMEM = {
 
 const uint16_t* RightArrow::getBitmap() { return bitmap; }
 
-void RightArrow::draw(TFT_eSprite* sprite) { _draw(bitmap, sprite); }

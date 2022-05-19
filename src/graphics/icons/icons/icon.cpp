@@ -9,7 +9,7 @@ int Icon::width() { return _width; }
 
 int Icon::height() { return _height; }
 
-void Icon::_draw(const uint16_t* bitmap, TFT_eSprite* sprite) {
+/*void Icon::_draw(const uint16_t* bitmap, TFT_eSprite* sprite) {
     if (!fading) {
         for (int y = 0; y < dimensions.height; y++) {
             int _y = (y * _height) / dimensions.height;
@@ -58,4 +58,4 @@ void Icon::_draw(const uint16_t* bitmap, TFT_eSprite* sprite) {
             }
         }
     }
-}
+}*/

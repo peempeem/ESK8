@@ -39,4 +39,3 @@ static const uint16_t bitmap[] PROGMEM = {
 
 const uint16_t* Hot::getBitmap() { return bitmap; }
 
-void Hot::draw(TFT_eSprite* sprite) { _draw(bitmap, sprite); }

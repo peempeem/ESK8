@@ -9,7 +9,6 @@ class RGB0 : public Icon {
     public:
         RGB0() : Icon(32, 32) {};
         const uint16_t* getBitmap();
-        void draw(TFT_eSprite* sprite);
 };
 
 #endif

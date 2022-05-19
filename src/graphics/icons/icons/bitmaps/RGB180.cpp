@@ -39,4 +39,3 @@ static const uint16_t bitmap[] PROGMEM = {
 
 const uint16_t* RGB180::getBitmap() { return bitmap; }
 
-void RGB180::draw(TFT_eSprite* sprite) { _draw(bitmap, sprite); }

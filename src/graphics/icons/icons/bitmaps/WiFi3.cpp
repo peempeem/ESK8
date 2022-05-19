@@ -39,4 +39,3 @@ static const uint16_t bitmap[] PROGMEM = {
 
 const uint16_t* WiFi3::getBitmap() { return bitmap; }
 
-void WiFi3::draw(TFT_eSprite* sprite) { _draw(bitmap, sprite); }

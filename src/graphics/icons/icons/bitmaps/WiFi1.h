@@ -9,7 +9,6 @@ class WiFi1 : public Icon {
     public:
         WiFi1() : Icon(32, 32) {};
         const uint16_t* getBitmap();
-        void draw(TFT_eSprite* sprite);
 };
 
 #endif

@@ -9,7 +9,6 @@ class RGB180 : public Icon {
     public:
         RGB180() : Icon(32, 32) {};
         const uint16_t* getBitmap();
-        void draw(TFT_eSprite* sprite);
 };
 
 #endif

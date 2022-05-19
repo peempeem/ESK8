@@ -21,7 +21,6 @@ class {name} : public Icon {{
     public:
         {name}() : Icon({width}, {height}) {{}};
         const uint16_t* getBitmap();
-        void draw(TFT_eSprite* sprite);
 }};
 
 #endif
@@ -47,7 +46,6 @@ f"""
 
 const uint16_t* {name}::getBitmap() {{ return bitmap; }}
 
-void {name}::draw(TFT_eSprite* sprite) {{ _draw(bitmap, sprite); }}
 """)
 
 
