@@ -1,20 +1,15 @@
 #include "welcomeScreen.h"
 
-void WelcomeScreen::draw(TFT_eSprite* sprite) {
-    drawBackground(sprite);
-    float stage = rate.getStageSin();
-    float circleSize = circleDeviation * stage + circleDefault;
-    Point center = {dimensions.width / 2, dimensions.height / 2};
-    sprite->drawCircle(
-        center.x,
-        center.y,
-        circleSize * center.y,
-        ringColor.as16Bit()
-    );
+void WelcomeScreen::setVisability(int visability) {
 
-    wifi.dimensions.width = dimensions.width * 0.8f;
-    wifi.dimensions.height = dimensions.width * 0.8f;
-    wifi.point.x = dimensions.width * 0.1f;
-    wifi.point.y = (dimensions.height - wifi.dimensions.height) / 2;
-    wifi.draw(sprite);
+}
+
+void WelcomeScreen::draw(TFT_eSprite* sprite) {
+    int w = dimensions.width / 2;
+    int h = dimensions.height / 2;
+    float b = (h - r) / (float) h;
+    Color c1 = SUNSET_PURPLE;
+    Color c2 = SUNSET_ORANGE;
+    sprite->drawCircle(w, h, r, c1.blend(c2, b).as16Bit());
+    r += 7;
 }

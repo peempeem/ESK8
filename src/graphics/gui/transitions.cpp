@@ -21,59 +21,26 @@ bool ScreenTransition::draw(TFT_eSprite* sprite) {
             progress = 1;
         progress = sin(progress * PI / 2.0f);
 
-        if (_screen1 != NULL) {
-            _screen1->draw(sprite);
-            switch (_transition) {
-                case TRANSITION_PUSH_RIGHT:
-                    sprite->pushSprite(
-                        (int) (-_screen1->dimensions.width * progress) + _screen1->point.x,
-                         _screen1->point.y
-                     );
-                    break;
-                case TRANSITION_PUSH_LEFT:
-                    sprite->pushSprite(
-                        (int) (_screen1->dimensions.width * progress) + _screen1->point.x,
-                        _screen1->point.y
-                    );
-                    break;
-                case TRANSITION_PUSH_UP:
-                    sprite->pushSprite(
-                        _screen1->point.x,
-                        (int) (-_screen1->dimensions.height * progress) + _screen1->point.y
-                    );
-                    break;
-                case TRANSITION_PUSH_DOWN:
-                    sprite->pushSprite(
-                        _screen1->point.x,
-                        (int) (_screen1->dimensions.height * progress) + _screen1->point.y);
-                    break;
-            }
-        }
-
         if (_screen2 != NULL) {
             _screen2->draw(sprite);
             switch (_transition) {
-                case TRANSITION_PUSH_RIGHT:
                 case TRANSITION_SLIDE_RIGHT:
                     sprite->pushSprite(
                         (int) (_screen2->dimensions.width * (1 - progress)) + _screen2->point.x,
                         _screen2->point.y
                     );
                     break;
-                case TRANSITION_PUSH_LEFT:
                 case TRANSITION_SLIDE_LEFT:
                     sprite->pushSprite(
                         (int) (_screen2->dimensions.width * (progress - 1)) + _screen2->point.x,
                         _screen2->point.y);
                     break;
-                case TRANSITION_PUSH_UP:
                 case TRANSITION_SLIDE_UP:
                     sprite->pushSprite(
                         _screen2->point.x,
                         (int) (_screen2->dimensions.height * (1 - progress)) + _screen2->point.y
                     );
                     break;
-                case TRANSITION_PUSH_DOWN:
                 case TRANSITION_SLIDE_DOWN:
                     sprite->pushSprite
                         (_screen2->point.x,

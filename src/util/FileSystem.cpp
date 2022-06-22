@@ -5,7 +5,7 @@ const static char* LOG_HEADER = "FileSystem";
 bool ESK8FS::init(bool format) {
     log(DEBUG, LOG_HEADER, "Loading filesystem -> ", false);
 
-    if (!fs.begin(true)) {
+    if (!fs.begin(true, "/spiffs", 32)) {
         logf();
         log(ERROR, LOG_HEADER, "Failed to mount SPIFFS filesystem (bad flash?)");
         return false;
@@ -15,23 +15,32 @@ bool ESK8FS::init(bool format) {
     return true;
 }
 
-bool ESK8FS::readFile(const char* path, uint8_t* buf, int size) {
+bool ESK8FS::readFile(const char* path, uint8_t* buf, int size, int seek) {
     File file = fs.open(path);
-    if (!file || file.read(buf, size) != size) {
+    if (!file) {
         log(ERROR, LOG_HEADER, path, false);
         logc(" does not exist");
+        return false;
+    }
+    
+    file.seek(seek, fs::SeekMode::SeekCur);
+    if (file.read(buf, size) != size) {
+        log(WARN, LOG_HEADER, path, false);
+        logc(" read less bytes than requested");
         return false;
     }
     file.close();
     return true;
 }
 
-bool ESK8FS::writeFile(const char* path, uint8_t* buf, int size) {
-    File file = fs.open(path, FILE_WRITE);
+bool ESK8FS::writeFile(const char* path, uint8_t* buf, int size, int seek) {
+    File file = fs.open(path);
     if (!file) {
         log(WARN, LOG_HEADER, "File does not exist, creating ", false);
         logc(path);
     }
+    
+    file.seek(seek, fs::SeekMode::SeekCur);
     file.write(buf, size);
     file.close();
     return true;

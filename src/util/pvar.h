@@ -8,30 +8,26 @@ class PVar {
     public:
         T data;
 
-        PVar(const char* name, ESK8FS* fs) {
-            this->name = name;
-            this->fs = fs;
-        }
+        PVar(const char* name) { _name = name; }
 
         bool load() {
-            if (!fs->readFile(name, (uint8_t*) &data, sizeof(T))) {
-                log(ERROR, name, "Error retrieving data from filesystem");
+            if (!filesys.readFile(_name, (uint8_t*) &data, sizeof(T))) {
+                log(ERROR, _name, "Error retrieving data from filesystem");
                 return false;
             }
             return true;
         }
 
         bool write() {
-            if (!fs->writeFile(name, (uint8_t*) &data, sizeof(T))) {
-                log(ERROR, name, "Couldn't write to file");
+            if (!filesys.writeFile(_name, (uint8_t*) &data, sizeof(T))) {
+                log(ERROR, _name, "Couldn't write to file");
                 return false;
             }
             return true;
         }
     
     private:
-        const char* name;
-        ESK8FS* fs;
+        const char* _name;
 };
 
 #endif

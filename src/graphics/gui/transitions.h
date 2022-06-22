@@ -4,14 +4,10 @@
 #include "../drawable.h"
 
 #define TRANSITION_NONE         0
-#define TRANSITION_PUSH_RIGHT   1
-#define TRANSITION_PUSH_LEFT    2
-#define TRANSITION_PUSH_UP      3
-#define TRANSITION_PUSH_DOWN    4
-#define TRANSITION_SLIDE_RIGHT  5
-#define TRANSITION_SLIDE_LEFT   6
-#define TRANSITION_SLIDE_UP     7
-#define TRANSITION_SLIDE_DOWN   8
+#define TRANSITION_SLIDE_RIGHT  1
+#define TRANSITION_SLIDE_LEFT   2
+#define TRANSITION_SLIDE_UP     3
+#define TRANSITION_SLIDE_DOWN   4
 
 class ScreenTransition {
     public:

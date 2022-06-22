@@ -39,6 +39,15 @@ bool Rate::isReady() {
     return false;
 }
 
+void Rate::sleep() {
+    int time = millis();
+    int stime = time - last - inverseRate;
+    if (stime < 0)
+        vTaskDelay(-stime / portTICK_PERIOD_MS);
+}
+
+void Rate::reset() { last = millis(); }
+
 /*
  * DESCRIPTION: Gets the current progress towards the next scheduled time on
  *              a scaled of 0 to 1
@@ -71,3 +80,20 @@ float Rate::getStageSin(bool noChange) { return sin(getStage(noChange) * 2 * PI)
  * RETURNS:     cos(progress)
  */
 float Rate::getStageCos(bool noChange) { return cos(getStage(noChange) * 2 * PI); }
+
+Timer::Timer() { }
+
+Timer::Timer(int ms) { set(ms); }
+
+void Timer::set(int ms) {
+    ring_time = ms + millis();
+    is_set = true;
+}
+
+bool Timer::ringing() {
+    if (is_set && millis() >= ring_time) {
+        is_set = false;
+        return true;
+    }
+    return false;
+}

@@ -37,6 +37,9 @@ class Triangles {
         
 };
 
+#define VISABLE     0
+#define INVISABLE   1
+
 class Screen {
     public:
         Dimension dimensions;
@@ -50,6 +53,7 @@ class Screen {
         Rate dotsRate = Rate(0.4f);
         Triangles triangles = Triangles(10);
 
+        virtual void setVisability(int visability) {}
         virtual void draw(TFT_eSprite* sprite) {}
         void drawBackground(TFT_eSprite* sprite);
 };

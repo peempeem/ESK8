@@ -3,10 +3,6 @@
 
 const static char* LOG_HEADER = "Controller";
 
-/*
- * DESCRIPTION: Initializes the hardware on the controller. This function should
- *              be called after board initialization.
- */
 void Controller::init() {
     // enable serial debugging
     Serial.begin(115200);
@@ -32,11 +28,7 @@ void Controller::init() {
     //WiFi.mode(WIFI_AP);
 }
 
-/*
- * DESCRIPTION: Updates all hardware related functionality and should be called
- *              on a regular basis.
- */
-void Controller::update() {
+void Controller::update(bool sleep) {
     if (sampleRate.isReady()) {
         // update buttons
         mainButton.update();
@@ -88,48 +80,26 @@ void Controller::update() {
             _wifiNetworks = scanned;
             WiFi.scanDelete();
         }*/
+        if (sleep)
+            sampleRate.sleep();
     }
 }
 
-/*
- * DESCRIPTION: Getter function for wheel value
- * RETURNS:     value of wheel on a scale from 0 to 1
- */
 float Controller::wheelValue() { return _wheelValue; }
 
-/*
- * DESCRIPTION: Getter function for battery voltage
- * RETURNS:     battery voltage
- */
 float Controller::batteryVoltage() { return _batteryVoltage; }
 
-/*
- * DESCRIPTION: Getter function for battery level
- * RETURNS:     battery level (based on VOLTAGE_MIN and VOLTAGE_MAX)
- */
 float Controller::batteryLevel() { return _batteryLevel; }
 
-/*
- * DESCRIPTION: Getter function for checking if power state has changed
- * RETURNS:     true if power state has changed else false
- */
 bool Controller::powerStateChanged() { return _powerStateChanged; }
 
-/*
- * DESCRIPTION: Getter function for power state
- * RETURNS:     power state
- */
 int Controller::powerState() {
     if (_powerStateChanged)
         _powerStateChanged = false;
     return _powerState;
 }
 
-/*
- * DESCRIPTION: Prints performance statistics to serial for debugging
- */
 void Controller::printStats() {
-    //log(DEBUG, LOG_HEADER, "\n\n\n\n\n\n\n\n\n\n\n\n");
     log(DEBUG, LOG_HEADER, ":::::::::::::: HARDWARE STATS ::::::::::::::");
     log(DEBUG, LOG_HEADER, "Battery Voltage  -> ", false);
     logc(_batteryVoltage, false);

@@ -12,6 +12,7 @@ class HomeScreen : public Screen {
         Color speedColor = WHITE;
         Color speedDescColor = GRAY;
 
+        void setVisability(int visability);
         void draw(TFT_eSprite* sprite);
 
         void setSpeed(float speed);

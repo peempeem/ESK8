@@ -37,7 +37,7 @@ class Controller : public Hardware {
         Controller() {}
 
         void    init();
-        void    update();
+        void    update(bool sleep=false);
         float   wheelValue();
         float   batteryVoltage();
         float   batteryLevel();

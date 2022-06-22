@@ -1,5 +1,9 @@
 #include "homeScreen.h"
 
+void HomeScreen::setVisability(int visability) {
+    
+}
+
 void HomeScreen::draw(TFT_eSprite* sprite) {
     drawBackground(sprite);
 

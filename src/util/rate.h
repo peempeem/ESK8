@@ -11,6 +11,8 @@ class Rate {
 
         void    setRate(float rate);
         bool    isReady();
+        void    sleep();
+        void    reset();
 
         float   getStage(bool noChange=false);
         float   getStageSin(bool noChange=false);
@@ -19,6 +21,19 @@ class Rate {
     private:
         int     inverseRate = 0;    // (1 / Rate) cache
         int     last = 0;           // last time
+};
+
+class Timer {
+    public:
+        Timer();
+        Timer(int ms);
+
+        void set(int ms);
+        bool ringing();
+    
+    private:
+        bool is_set = false;
+        int ring_time = 0;
 };
 
 #endif

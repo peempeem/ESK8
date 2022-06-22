@@ -1,8 +1,6 @@
 #include "notificationBar.h"
 
 NotificationBar::NotificationBar() {
-    battery.backgroundColor = backgroundColor;
-    wifi.backgroundColor = backgroundColor;
     icons.push_back(&battery);
     icons.push_back(&wifi);
 }
@@ -12,14 +10,15 @@ void NotificationBar::addIcon(IconHandler* icon) {
         if (i == icon)
             return;
     }
-    icon->backgroundColor = backgroundColor;
     icons.push_back(icon);
 }
 
 void NotificationBar::removeIcon(IconHandler* icon) {
     for (int i = 0; i < icons.size(); i++) {
-        if (icons[i] == icon && icons[i] != &battery && icons[i] != &wifi)
+        if (icons[i] == icon && icons[i] != &battery && icons[i] != &wifi) {
+            icon->deallocate();
             icons.erase(icons.begin() + i);
+        }
     }
 }
 
@@ -31,7 +30,7 @@ void NotificationBar::draw(TFT_eSprite* sprite) {
         icon->dimensions.height = dimensions.height;
         icon->point.x = x;
         icon->point.y = 0;
-        icon->draw(sprite);
+        icon->draw(sprite, 1);
         x -= dimensions.height;
     }
 }

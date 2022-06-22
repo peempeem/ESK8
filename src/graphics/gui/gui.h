@@ -15,8 +15,8 @@ class GUI {
         void addScreen(Screen* screen);
         void setMainScreen(Screen* screen);
         bool isMainScreen(Screen* screen);
-        void transitionTo(Screen* screen, int transitionType, int time=250);
-        void update();
+        void transitionTo(Screen* screen, int transitionType, int time=600);
+        void update(bool sleep=false);
 
     private:
         TFT_eSPI* display;

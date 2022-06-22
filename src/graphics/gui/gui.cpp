@@ -40,14 +40,19 @@ void GUI::addScreen(Screen* screen) {
 }
 
 void GUI::setMainScreen(Screen* screen) {
-    if (containsScreen(screen))
+    if (containsScreen(screen)) {
+        if (mainScreen != NULL)
+            mainScreen->setVisability(INVISABLE);
         mainScreen = screen;
+        mainScreen->setVisability(VISABLE);
+    }
 }
 
 bool GUI::isMainScreen(Screen* screen) { return mainScreen == screen; }
 
 void GUI::transitionTo(Screen* screen, int transition, int time) {
     if (containsScreen(screen) && screen != mainScreen && !transitions.isTransitioning()) {
+        screen->setVisability(VISABLE);
         transitions.beginTransition(
             mainScreen,
             screen,
@@ -58,11 +63,11 @@ void GUI::transitionTo(Screen* screen, int transition, int time) {
     }
 }
 
-void GUI::update() {
+void GUI::update(bool sleep) {
     if (refreshRate.isReady()) {
         if (transitions.isTransitioning()) {
             if (transitions.draw(sprite))
-                mainScreen = transitionScreen;
+                setMainScreen(transitionScreen);
         } else {
             if (mainScreen != NULL)
                 mainScreen->draw(sprite);
@@ -70,5 +75,7 @@ void GUI::update() {
         }
         notifications.draw(notificationSprite);
         notificationSprite->pushSprite(0, 0);
+        if (sleep)
+            refreshRate.sleep();
     }
 }

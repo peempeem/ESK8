@@ -4,7 +4,6 @@
 #include "SPIFFS.h"
 #include "Log.h"
 
-
 #define MAX_PATH    64
 
 struct FileData {
@@ -17,8 +16,8 @@ class ESK8FS {
         ESK8FS() {}
 
         bool init(bool format=false);
-        bool readFile(const char* path, uint8_t* buf, int size);
-        bool writeFile(const char* path, uint8_t* buf, int size);
+        bool readFile(const char* path, uint8_t* buf, int size, int seek=0);
+        bool writeFile(const char* path, uint8_t* buf, int size, int seek=0);
         bool deleteFile(const char* path);
         std::vector<FileData> map(const char* path);
         bool clearFS();
@@ -28,6 +27,6 @@ class ESK8FS {
     private:
         bool initialized = false;
         fs::SPIFFSFS fs = SPIFFS;
-};
+} static filesys;
 
 #endif

@@ -41,6 +41,8 @@ const static Color LIGHTER_GRAY (145,   145,    145 );
 const static Color ALMOST_BLACK (9,     5,      9   );
 const static Color MAROON       (130,   0,      0   );
 const static Color TURQUOISE    (64,    224,    208 );
+const static Color SUNSET_ORANGE(238,   175,    97  );
+const static Color SUNSET_PURPLE(106,   13,     131 );
 
 // used in ColorGradient
 struct ColorPosition {
