@@ -31,8 +31,8 @@ class MessageLink {
 
     private:
         bool sta;
+        bool pairing = false;
         PVar<WiFiVar> wifiPVar = PVar<WiFiVar>("/wifi.var");
-        Timer pairing_timer;
 
         Timer heartbeat;
         Timer heartbeat_timeout;

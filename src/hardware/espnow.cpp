@@ -27,21 +27,9 @@ static void recv_cb(const uint8_t* mac, const uint8_t* data, int len) {
     log(DEBUG, LOG_HEADER, "RECV DATA");
 }
 
-bool espnow_init(bool sta, bool send_cb_enabled) {
-    log(DEBUG, LOG_HEADER, "Initializing ESP-NOW -> ", false);
-
-    if (sta)
-        WiFi.mode(WIFI_STA);
-    else {
-        WiFi.mode(WIFI_AP);
-        WiFi.softAP(String(random(0, 100) * 100000000).c_str(), "password", 0);
-    }
-    
-    if (esp_now_init() != ESP_OK) {
-        logf();
+bool espnow_init(bool send_cb_enabled) {    
+    if (esp_now_init() != ESP_OK)
         return false;
-    }
-    logs();
 
     if (send_cb_enabled) {
         if (esp_now_register_send_cb(send_cb) != ESP_OK)

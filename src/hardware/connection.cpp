@@ -1,5 +1,6 @@
 #include "connection.h"
 #include "espnow.h"
+#include <vector>
 
 const static char* LOG_HEADER = "MessageLink";
 const static uint8_t pairing_mac[6] = {0x42, 0x65, 0x61, 0x6e, 0x73, 0x21};   // Beans!
@@ -21,8 +22,15 @@ bool MessageLink::init(bool sta) {
     this->sta = sta;
     if (!wifiPVar.load() || !wifiPVar.data.paired)
         log(WARN, LOG_HEADER, "No recent connection found");
+    
+    if (sta)
+        WiFi.mode(WIFI_STA);
+    else
+        WiFi.mode(WIFI_AP);
+    
+    WiFi.disconnect();
 
-    return espnow_init(sta);
+    return espnow_init();
 }
 
 bool MessageLink::is_paired() {
@@ -30,14 +38,7 @@ bool MessageLink::is_paired() {
 }
 
 bool MessageLink::is_pairing() {
-    return pairing_timer.is_set() && !pairing_timer.is_ringing();
-}
-
-void delete_peers() {
-    esp_now_peer_info_t peer;
-    
-    while (esp_now_fetch_peer(true, &peer) == ESP_OK)
-        esp_now_del_peer(peer.peer_addr);
+    return pairing;
 }
 
 void randomize_mac(uint8_t* mac) {
@@ -47,32 +48,16 @@ void randomize_mac(uint8_t* mac) {
     mac[0] &= 0xFE;
 }
 
-wifi_interface_t MessageLink::_ifidx() {
-    if (sta)
-        return WIFI_IF_STA;
-    else
-        return WIFI_IF_AP;
-}
-
-void MessageLink::pair_master(int timeout) {
-    log(DEBUG, LOG_HEADER, "Pairing as master");
-    pairing_timer.set(timeout);
+bool MessageLink::pair_master(const char* key) {
+    if (pairing)
+        return false;
     
-    delete_peers();
+    log(DEBUG, LOG_HEADER, "Pairing as master");
+
     wifiPVar.data.paired = false;
-    randomize_mac(wifiPVar.data.this_mac);
-    memcpy(wifiPVar.data.peer_mac, pairing_mac, 6);
-
-    esp_err_t err = esp_wifi_set_mac(_ifidx(), wifiPVar.data.this_mac);
-
-    if (err != ESP_OK) {
-        log(ERROR, LOG_HEADER, esp_err_to_name(err));
-        pairing_timer.ring();
-        return;
-    }
-
     wifiPVar.write();
 
+<<<<<<< Updated upstream
     esp_now_peer_info_t peer;
     memset(&peer, 0, sizeof(peer));
     memcpy(peer.peer_addr, pairing_mac, 6);
@@ -87,9 +72,15 @@ void MessageLink::pair_master(int timeout) {
             .len = 0
         };
         _send(&msg);
+=======
+    int networks = WiFi.scanNetworks();
+    std::vector<int> found;
+    for (int i = 0; i < networks; i++) {
+        const char* ssid = WiFi.SSID(i);
+        int rssi = WiFi.RSSI(i);
+        if ()
+>>>>>>> Stashed changes
     }
-
-    Serial.println(WiFi.macAddress());
 }
 
 void MessageLink::pair_slave(int timeout) {

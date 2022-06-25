@@ -3,7 +3,6 @@
 
 #include <esp_now.h>
 #include <WiFi.h>
-#include "esp_wifi.h"
 
 typedef struct SENT_MSG {
     uint8_t mac[6];
@@ -16,7 +15,7 @@ typedef struct RECV_MSG {
     int len;
 } recv_msg_t;
 
-bool espnow_init(bool sta, bool send_cb_enabled=true);
+bool espnow_init(bool send_cb_enabled=true);
 
 bool add_peer(esp_now_peer_info_t* peer_info);
 
