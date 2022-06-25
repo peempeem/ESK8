@@ -12,7 +12,7 @@ void setup() {
   //filesys.clearFS();
 
   msglink = new MessageLink();
-  msglink->init(true);
+  msglink->init(false);
   
 }
 

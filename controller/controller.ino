@@ -34,7 +34,7 @@ void setup() {
   //filesys.logMap(filesys.map("/"));
 
   msglink = new MessageLink();
-  msglink->init(true);
+  msglink->init(false);
 
   gui = new GUI();
   welcomeScreen = new WelcomeScreen();

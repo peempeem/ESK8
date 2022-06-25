@@ -76,9 +76,9 @@ void MessageLink::pair_master(int timeout) {
     esp_now_peer_info_t peer;
     memset(&peer, 0, sizeof(peer));
     memcpy(peer.peer_addr, pairing_mac, 6);
-    peer.channel = 1;
+    peer.channel = 0;
     peer.encrypt = false;
-    //peer.ifidx = _ifidx();
+    peer.ifidx = _ifidx();
     if (!add_peer(&peer))
         log(ERROR, LOG_HEADER, "Failed to add pairing peer");
     else {
@@ -161,9 +161,9 @@ void MessageLink::update() {
                         esp_now_peer_info_t peer;
                         memset(&peer, 0, sizeof(peer));
                         memcpy(peer.peer_addr, wifiPVar.data.peer_mac, 6);
-                        peer.channel = 1;
+                        peer.channel = 0;
                         peer.encrypt = false;
-                        //peer.ifidx = _ifidx();
+                        peer.ifidx = _ifidx();
                         add_peer(&peer);
                     }
                 }

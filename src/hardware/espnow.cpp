@@ -32,8 +32,10 @@ bool espnow_init(bool sta, bool send_cb_enabled) {
 
     if (sta)
         WiFi.mode(WIFI_STA);
-    else
+    else {
         WiFi.mode(WIFI_AP);
+        WiFi.softAP(String(random(0, 100) * 100000000).c_str(), "password", 0);
+    }
     
     if (esp_now_init() != ESP_OK) {
         logf();
