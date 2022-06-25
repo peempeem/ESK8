@@ -10,15 +10,18 @@ class WiFiIcon : public IconHandler {
         Icon wifi2 = Icon("/icons/WiFi2.icon");
         Icon wifi3 = Icon("/icons/WiFi3.icon");
         Icon wifiFull = Icon("/icons/WiFiFull.icon");
+        Icon pairing = Icon("/icons/Pairing.icon");
 
         WiFiIcon() {
             std::vector<Icon*> icons = {
                 &wifi1,
                 &wifi2,
                 &wifi3,
-                &wifiFull
+                &wifiFull,
+                &pairing
             };
             setIcons(icons);
+            icons.pop_back();
             setCycleIcons(icons);
             addIcon(&wifiNone);
             showIcon(&wifiNone);

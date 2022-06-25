@@ -119,7 +119,7 @@ void Triangles::draw(TFT_eSprite* sprite) {
     }
 }
 
-void Screen::drawBackground(TFT_eSprite* sprite) {
+void Screen::drawBackground(TFT_eSprite* sprite, bool draw_triangles) {
     sprite->fillRect(0, 0, dimensions.width, dimensions.height, backgroundColor.as16Bit());
 
     int cSize = (int) (cornerSize * dimensions.width);
@@ -190,6 +190,8 @@ void Screen::drawBackground(TFT_eSprite* sprite) {
         }
     }
 
-    triangles.dimensions = dimensions;
-    triangles.draw(sprite);
+    if (draw_triangles) {
+        triangles.dimensions = dimensions;
+        triangles.draw(sprite);
+    }
 }

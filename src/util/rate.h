@@ -28,12 +28,15 @@ class Timer {
         Timer();
         Timer(int ms);
 
+        bool is_set();
         void set(int ms);
-        bool ringing();
+        bool is_ringing();
+        void ring();
+        float progress();
     
     private:
-        bool is_set = false;
-        int ring_time = 0;
+        bool _is_set = false;
+        int start_time, ring_time;
 };
 
 #endif

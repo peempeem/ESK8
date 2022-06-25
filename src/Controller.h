@@ -53,7 +53,6 @@ class Controller : public Hardware {
         bool    charging = false;                   // charging flag
         int     _powerState = STATE_DISCHARGING;    // current power state
         bool    _powerStateChanged = false;         // power state change flag
-        int     _wifiNetworks = 0;
 } static controller;
 
 #endif

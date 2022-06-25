@@ -1,15 +1,14 @@
 
 #include "Controller.h"
 #include "util/FileSystem.h"
-#include "util/pvar.h"
-#include "util/vars.h"
+#include "hardware/connection.h"
 #include "graphics/gui/gui.h"
 #include "graphics/screens/welcomeScreen.h"
 #include "graphics/screens/connectScreen.h"
 #include "graphics/screens/homeScreen.h"
 #include "graphics/icons/RGBIcon.h"
 
-PVar<WiFiVar> wifiVar("/wifi.var");
+MessageLink* msglink;
 
 GUI* gui;
 WelcomeScreen* welcomeScreen;
@@ -29,12 +28,13 @@ void update_controller(void* data) {
 
 void setup() {
   controller.init();
+
   filesys.init();
   //filesys.clearFS();
   //filesys.logMap(filesys.map("/"));
-  
-  if (!wifiVar.load());
-    wifiVar.write();
+
+  msglink = new MessageLink();
+  msglink->init(true);
 
   gui = new GUI();
   welcomeScreen = new WelcomeScreen();
@@ -97,6 +97,7 @@ void handle_power() {
 Rate debug(0.5f);
 Rate speedRate(10);
 Rate rate(60);
+Rate pair(0.1f);
 float speed = 0.0f;
 Timer dc_timer;
 Timer home_timer;
@@ -105,28 +106,41 @@ void loop() {
   if (rate.isReady()) {
     handle_power();
 
+    Screen* change = gui->screenChanged();
+    if (change == welcomeScreen) {
+      // Entry into welcomeScreen
+
+    } else if (change == connectScreen) {
+      // Entry into connectScreen
+
+    } else if (change == homeScreen) {
+      // Entry into homeScreen
+    }
+
     if (gui->isMainScreen(welcomeScreen)) {
-      if (millis() > 2500) {
+      if (millis() > 3000)
         gui->transitionTo(connectScreen, TRANSITION_SLIDE_UP);
-        connectScreen->wifi.showIcon(&connectScreen->wifi.wifi1);
-        connectScreen->wifi.startCycling();
-      }
       
     } else if (gui->isMainScreen(connectScreen)) {      
-      if (dc_timer.ringing()) {
-        connectScreen->wifi.stopBlinking();
-        connectScreen->wifi.startCycling();
-      }
-
-      if (controller.rightButton.isTapped()) {
-        connectScreen->wifi.showIcon(&connectScreen->wifi.wifiFull);
-        connectScreen->wifi.startBlinking();
+      if (!msglink->is_paired()) {
+        connectScreen->wifi.showIcon(&connectScreen->wifi.pairing);
         connectScreen->wifi.stopCycling();
-        home_timer.set(2000);
+        connectScreen->wifi.startBlinking();
+      } else if (!msglink->is_connected()) {
+        connectScreen->wifi.startCycling();
+        connectScreen->wifi.stopBlinking();
+      } else {
+        connectScreen->wifi.showIcon(&connectScreen->wifi.wifiFull);
+        connectScreen->wifi.stopCycling();
+        connectScreen->wifi.startBlinking();
       }
 
-      if (home_timer.ringing())
+      if (controller.rightButton.isTapped())
+        home_timer.set(2000);
+
+      if (home_timer.is_ringing())
         gui->transitionTo(homeScreen, TRANSITION_SLIDE_RIGHT);
+
     } else if (gui->isMainScreen(homeScreen)) {
       if (controller.rightButton.isTapped()) {
         connectScreen->wifi.showIcon(&connectScreen->wifi.wifiNone);
@@ -146,8 +160,13 @@ void loop() {
       homeScreen->setSpeed(speed);
     }
 
-    if (debug.isReady())
-      controller.printStats();
+    //if (debug.isReady())
+      //controller.printStats();
+    
+    msglink->update();
+    
+    if (!msglink->is_paired() && !msglink->is_pairing())
+      msglink->pair_master();
 
     rate.sleep();
   }

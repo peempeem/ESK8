@@ -55,7 +55,7 @@ class Screen {
 
         virtual void setVisability(int visability) {}
         virtual void draw(TFT_eSprite* sprite) {}
-        void drawBackground(TFT_eSprite* sprite);
+        void drawBackground(TFT_eSprite* sprite, bool draw_triangles=true);
 };
 
 class Indicator {

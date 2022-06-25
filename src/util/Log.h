@@ -9,6 +9,8 @@
 
 #define DIGIT_PAD 2
 
+#define HEAD_PAD 12
+
 template<class T>
 static void log(int type, const char* header, T data, bool nl=true) {
     if (Serial) {
@@ -23,21 +25,30 @@ static void log(int type, const char* header, T data, bool nl=true) {
                 Serial.write('0');
         }
         Serial.print(ms);
-        Serial.print("] [ ");
+        Serial.print("] [");
+        Serial.print(xPortGetCoreID());
+        Serial.write("|");
+        int priority = uxTaskPriorityGet(NULL);
+        if (priority < 10)
+            Serial.write(" ");
+        Serial.print(priority);
+        Serial.write("|");
         switch (type) {
             case DEBUG:
-                Serial.print("DEBUG");
+                Serial.write("D");
                 break;
             case WARN:
-                Serial.print("WARN ");
+                Serial.write("W");
                 break;
             default:
-                Serial.print("ERROR");
+                Serial.write("E");
                 break;
         }
-        Serial.print(" ] [ ");
+        Serial.print("] [");
         Serial.print(header);
-        Serial.print(" ]: ");
+        for (int i = 0; i < HEAD_PAD - strlen(header); i++)
+            Serial.write(" ");
+        Serial.print("]: ");
         Serial.print(data);
         if (nl)
             Serial.write('\n');
@@ -61,6 +72,15 @@ static void logf() {
 static void logs() {
     if (Serial)
         Serial.println("[ SUCCESS ]");
+}
+
+template<class T>
+static void logx(T number, bool nl=true) {
+    if (Serial) {
+        Serial.print(number, HEX);
+        if (nl)
+            Serial.write('\n');
+    }
 }
 
 #endif

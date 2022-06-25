@@ -102,15 +102,15 @@ uint16_t Color::as16Bit() { return c16; }
  *              bias    - 0 to 1 value (0 is closest to current color)
  * RETURNS:     blended color
  */
-Color Color::blend(Color& other, float bias) {
+Color Color::blend(const Color& other, float bias) {
     if (bias <= 0)
         return getColor();
     else if (bias >= 1)
-        return other.getColor();
+        return other;
     return Color(
-        _r + (int) ((other.r() - _r) * bias),
-        _g + (int) ((other.g() - _g) * bias),
-        _b + (int) ((other.b() - _b) * bias)
+        _r + (int) ((other._r - _r) * bias),
+        _g + (int) ((other._g - _g) * bias),
+        _b + (int) ((other._b - _b) * bias)
     );
 }
 

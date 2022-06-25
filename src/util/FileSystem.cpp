@@ -24,9 +24,14 @@ bool ESK8FS::readFile(const char* path, uint8_t* buf, int size, int seek) {
     }
     
     file.seek(seek, fs::SeekMode::SeekCur);
-    if (file.read(buf, size) != size) {
+    int read = file.read(buf, size);
+    if (read != size) {
         log(WARN, LOG_HEADER, path, false);
-        logc(" read less bytes than requested");
+        logc(" read less bytes [", false);
+        logc(read, false);
+        logc("] than requested [", false);
+        logc(size, false);
+        logc("]");
         return false;
     }
     file.close();

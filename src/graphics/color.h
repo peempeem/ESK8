@@ -20,7 +20,7 @@ class Color {
         int b();
         Color getColor();
         uint16_t as16Bit();
-        Color blend(Color& other, float bias);
+        Color blend(const Color& other, float bias);
 
     private:
         int _r, _g, _b;
@@ -43,6 +43,7 @@ const static Color MAROON       (130,   0,      0   );
 const static Color TURQUOISE    (64,    224,    208 );
 const static Color SUNSET_ORANGE(238,   175,    97  );
 const static Color SUNSET_PURPLE(106,   13,     131 );
+const static Color CERULEAN     (0,     171,    240 );
 
 // used in ColorGradient
 struct ColorPosition {

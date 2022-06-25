@@ -85,15 +85,29 @@ Timer::Timer() { }
 
 Timer::Timer(int ms) { set(ms); }
 
+bool Timer::is_set() { return _is_set; }
+
 void Timer::set(int ms) {
-    ring_time = ms + millis();
-    is_set = true;
+    start_time = millis();
+    ring_time = ms + start_time;
+    _is_set = true;
 }
 
-bool Timer::ringing() {
-    if (is_set && millis() >= ring_time) {
-        is_set = false;
+bool Timer::is_ringing() {
+    if (_is_set && millis() >= ring_time)
         return true;
-    }
     return false;
+}
+
+void Timer::ring() { ring_time == millis(); }
+
+float Timer::progress() {
+    if (_is_set) {
+        int time = millis();
+        if (time >= ring_time)
+            return 1;
+        else
+            return (time - start_time) / (float) (ring_time - start_time);
+    }
+    return 0;
 }

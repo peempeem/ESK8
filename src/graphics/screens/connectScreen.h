@@ -7,12 +7,8 @@
 
 class ConnectScreen : public Screen {
     public:
-        Rate rate = Rate(0.5f);
-        Color textColor = WHITE;
-        Color ringColor = WHITE;
-        float circleDefault = 0.85f;
-        float circleDeviation = 0.1f;
-        bool visable = false;
+        Color textColor = GREEN;
+        String text = "PAIRING";
 
         SkateboardIcon board;
         WiFiIcon wifi;

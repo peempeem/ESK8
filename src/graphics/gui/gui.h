@@ -16,6 +16,7 @@ class GUI {
         void setMainScreen(Screen* screen);
         bool isMainScreen(Screen* screen);
         void transitionTo(Screen* screen, int transitionType, int time=600);
+        Screen* screenChanged();
         void update(bool sleep=false);
 
     private:
@@ -23,7 +24,7 @@ class GUI {
         TFT_eSprite* sprite = NULL;
         TFT_eSprite* notificationSprite = NULL;
         Dimension dimensions;
-        std::vector<Screen*> screens;
+        std::vector<Screen*> screens, changes;
         Screen* mainScreen = NULL;
         Screen* transitionScreen = NULL;
         ScreenTransition transitions;

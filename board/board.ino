@@ -1,27 +1,26 @@
 #include "Controller.h"
 #include "util/FileSystem.h"
-#include "util/pvar.h"
-#include "util/vars.h"
+#include "hardware/connection.h"
 
-ESK8FS filesys;
-PVar<WiFiVar> wifiVar("/wifi.var", &filesys);
+
+MessageLink* msglink;
 
 void setup() {
   Serial.begin(115200);
-  delay(2000);
   filesys.init();
-  filesys.logMap(filesys.map("/"));
+  //filesys.logMap(filesys.map("/"));
   //filesys.clearFS();
-  if (wifiVar.load()) {
-    Serial.println(wifiVar.data.gotMac);
-  } else {
-    wifiVar.data.gotMac = true;
-    wifiVar.write();
-  }
+
+  msglink = new MessageLink();
+  msglink->init(true);
   
 }
 
 void loop() {
-  Serial.println("im ok!");
-  delay(5000);
+  
+  if (!msglink->is_paired() && !msglink->is_pairing())
+      msglink->pair_slave();
+  else if (msglink->is_paired())
+    log(DEBUG, "loop", "PAIRED!!");
+  
 }

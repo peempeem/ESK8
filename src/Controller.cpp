@@ -1,5 +1,4 @@
 #include "Controller.h"
-#include <WiFi.h>
 
 const static char* LOG_HEADER = "Controller";
 
@@ -23,9 +22,6 @@ void Controller::init() {
     // set normal performance
     _powerState = STATE_DISCHARGING;
     setCpuFrequencyMhz(240);
-
-    // enable wifi
-    //WiFi.mode(WIFI_AP);
 }
 
 void Controller::update(bool sleep) {
@@ -114,6 +110,4 @@ void Controller::printStats() {
     logc(" bytes (", false);
     logc(memoryUsagePercent(), false);
     logc("%)");
-    log(DEBUG, LOG_HEADER, "WiFi Networks    -> ", false);
-    logc(_wifiNetworks);
 }

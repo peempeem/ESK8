@@ -15,15 +15,7 @@ void ConnectScreen::setVisability(int visability) {
 
 void ConnectScreen::draw(TFT_eSprite* sprite) {
     drawBackground(sprite);
-    float stage = rate.getStageSin();
-    float circleSize = circleDeviation * stage + circleDefault;
     Point center = {dimensions.width / 2, dimensions.height / 2};
-    sprite->drawCircle(
-        center.x,
-        center.y,
-        circleSize * center.y,
-        ringColor.as16Bit()
-    );
 
     wifi.dimensions.width = dimensions.width * 0.5f;
     wifi.dimensions.height = wifi.dimensions.width;
@@ -36,4 +28,14 @@ void ConnectScreen::draw(TFT_eSprite* sprite) {
     board.point.x = center.x - board.dimensions.width / 2;
     board.point.y = 25 + (dimensions.height - board.dimensions.height) / 2;
     board.draw(sprite);
+
+    sprite->setFreeFont(&Orbitron_Light_24);
+    sprite->setTextDatum(MC_DATUM);
+    sprite->setTextColor(textColor.as16Bit());
+    sprite->drawString(
+        text.c_str(),
+        center.x,
+        (int) (dimensions.height * 0.85f),
+        1
+    );
 }

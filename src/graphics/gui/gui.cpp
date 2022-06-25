@@ -45,6 +45,7 @@ void GUI::setMainScreen(Screen* screen) {
             mainScreen->setVisability(INVISABLE);
         mainScreen = screen;
         mainScreen->setVisability(VISABLE);
+        changes.push_back(screen);
     }
 }
 
@@ -59,15 +60,23 @@ void GUI::transitionTo(Screen* screen, int transition, int time) {
             transition,
             time
         );
-        transitionScreen = screen;
+        setMainScreen(screen);
+    }
+}
+
+Screen* GUI::screenChanged() {
+    int size = changes.size();
+    if (size > 0) {
+        Screen* change = changes[size - 1];
+        changes.pop_back();
+        return change;
     }
 }
 
 void GUI::update(bool sleep) {
     if (refreshRate.isReady()) {
         if (transitions.isTransitioning()) {
-            if (transitions.draw(sprite))
-                setMainScreen(transitionScreen);
+            transitions.draw(sprite);
         } else {
             if (mainScreen != NULL)
                 mainScreen->draw(sprite);
