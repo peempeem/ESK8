@@ -39,14 +39,22 @@ bool ESK8FS::readFile(const char* path, uint8_t* buf, int size, int seek) {
 }
 
 bool ESK8FS::writeFile(const char* path, uint8_t* buf, int size, int seek) {
-    File file = fs.open(path);
+    File file = fs.open(path, FILE_WRITE);
     if (!file) {
         log(WARN, LOG_HEADER, "File does not exist, creating ", false);
         logc(path);
     }
     
     file.seek(seek, fs::SeekMode::SeekCur);
-    file.write(buf, size);
+    int nbytes = file.write(buf, size);
+    if (nbytes != size) {
+        log(ERROR, LOG_HEADER, "Wrote less bytes [", false);
+        logc(nbytes, false);
+        logc("] than requested [", false);
+        logc(size, false);
+        logc("]");
+        return false;
+    }
     file.close();
     return true;
 }

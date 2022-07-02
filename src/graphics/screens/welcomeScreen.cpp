@@ -1,14 +1,18 @@
 #include "welcomeScreen.h"
 
 void WelcomeScreen::setVisability(int visability) {
-
+    if (visability == VISABLE) {
+        start = true;
+        circle_radius = load_circle_max + circle_space;
+    }
 }
 
 void WelcomeScreen::draw(TFT_eSprite* sprite) {
-    if (!fade_in.is_set())
+    if (start) {
         fade_in.set(1000);
-    if (!circles.is_set())
         circles.set(250);
+        start = false;
+    }
     
     Point c = {dimensions.width / 2, dimensions.height / 2};
 

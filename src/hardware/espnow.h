@@ -1,30 +1,20 @@
 #ifndef ESPNOW_H
 #define ESPNOW_H
 
-#include <esp_now.h>
+#include "msg_io.h"
 #include <WiFi.h>
 
-typedef struct SENT_MSG {
-    uint8_t mac[6];
-    esp_now_send_status_t status;
-} sent_msg_t;
 
-typedef struct RECV_MSG {
-    uint8_t mac[6];
-    uint8_t* data;
-    int len;
-} recv_msg_t;
+static Whitelist whitelist;
 
-bool espnow_init(bool send_cb_enabled=true);
+bool espnow_init();
 
 bool add_peer(esp_now_peer_info_t* peer_info);
 
-bool outbound_messages();
-bool inbound_messages();
+void send_msg(msg_t& msg);
 
-sent_msg_t get_outbound_message();
-recv_msg_t get_inbound_message();
+bool get_inbound_message(recv_msg_t* msg);
 
-void dispose_msg(recv_msg_t* msg);
+void dispose_msg(recv_msg_t& msg);
 
 #endif

@@ -1,20 +1,24 @@
 
 #include "Controller.h"
 #include "util/FileSystem.h"
-#include "hardware/connection.h"
+//#include "hardware/connection.h"
 #include "graphics/gui/gui.h"
 #include "graphics/screens/welcomeScreen.h"
 #include "graphics/screens/connectScreen.h"
 #include "graphics/screens/homeScreen.h"
 #include "graphics/icons/RGBIcon.h"
+#include "hardware/espnow.h"
 
-MessageLink* msglink;
+//MessageLink* msglink;
 
 GUI* gui;
 WelcomeScreen* welcomeScreen;
 ConnectScreen* connectScreen;
 HomeScreen* homeScreen;
 RGBIcon* rgbIcon;
+
+const static uint8_t b_mac[6] = {0x08, 0x3a, 0xf2, 0x69, 0xd7, 0x58};
+MAC board_mac(b_mac);
 
 void update_gui(void* data) {
   while (true)
@@ -28,13 +32,25 @@ void update_controller(void* data) {
 
 void setup() {
   controller.init();
-
   filesys.init();
   //filesys.clearFS();
   //filesys.logMap(filesys.map("/"));
 
-  msglink = new MessageLink();
-  msglink->init(false);
+  //msglink = new MessageLink();
+  //msglink->init("Controller ", "password");
+
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.disconnect();
+  WiFi.softAP("CONTROLLER", "password", 1, 0);
+
+  espnow_init();
+  
+  esp_now_peer_info_t peer;
+  memset(&peer, 0, sizeof(peer));
+  memcpy(peer.peer_addr, b_mac, 6);
+  add_peer(&peer);
+  
+  whitelist.add(board_mac);
 
   gui = new GUI();
   welcomeScreen = new WelcomeScreen();
@@ -94,13 +110,14 @@ void handle_power() {
   }
 }
 
-Rate debug(0.5f);
+Rate debug(0.1f);
 Rate speedRate(10);
-Rate rate(60);
+Rate rate(100);
 Rate pair(0.1f);
 float speed = 0.0f;
 Timer dc_timer;
 Timer home_timer;
+Rate send(0.2f);
 
 void loop() {
   if (rate.isReady()) {
@@ -111,22 +128,24 @@ void loop() {
       // Entry into welcomeScreen
 
     } else if (change == connectScreen) {
-      // Entry into connectScreen
+      home_timer.silence();
 
     } else if (change == homeScreen) {
-      // Entry into homeScreen
+
     }
 
     if (gui->isMainScreen(welcomeScreen)) {
-      if (millis() > 3000)
+      if (millis() > 4000)
         gui->transitionTo(connectScreen, TRANSITION_SLIDE_UP);
       
     } else if (gui->isMainScreen(connectScreen)) {      
-      if (!msglink->is_paired()) {
+      //if (!msglink->is_paired()) {
+      if (true) {
         connectScreen->wifi.showIcon(&connectScreen->wifi.pairing);
         connectScreen->wifi.stopCycling();
         connectScreen->wifi.startBlinking();
-      } else if (!msglink->is_connected()) {
+      } //else if (!msglink->is_connected()) {
+      else if (true) {
         connectScreen->wifi.startCycling();
         connectScreen->wifi.stopBlinking();
       } else {
@@ -135,19 +154,23 @@ void loop() {
         connectScreen->wifi.startBlinking();
       }
 
-      if (controller.rightButton.isTapped())
-        home_timer.set(2000);
+      //if (msglink->is_connected())
+        //home_timer.set(2000, true);
 
       if (home_timer.is_ringing())
         gui->transitionTo(homeScreen, TRANSITION_SLIDE_RIGHT);
 
     } else if (gui->isMainScreen(homeScreen)) {
-      if (controller.rightButton.isTapped()) {
-        connectScreen->wifi.showIcon(&connectScreen->wifi.wifiNone);
-        connectScreen->wifi.startBlinking();
-        dc_timer.set(2000);
-        gui->transitionTo(connectScreen, TRANSITION_SLIDE_LEFT);
+
+      if (controller.mainButton.hasTapEvent()) {
+        TapEvent taps = controller.mainButton.getTapEvent();
+        //if (taps.taps >= 4)
+          //msglink->unpair();
+          
       }
+
+      //if (!msglink->is_connected())
+        //gui->transitionTo(connectScreen, TRANSITION_SLIDE_LEFT);
 
       if (controller.mainButton.releasedElapsedTime() < 500) {
         if (speedRate.isReady()) { (speed += controller.wheelValue() - 0.5f) / 2.0f; }
@@ -160,13 +183,50 @@ void loop() {
       homeScreen->setSpeed(speed);
     }
 
-    //if (debug.isReady())
-      //controller.printStats();
+    if (debug.isReady())
+      controller.printStats();
     
-    msglink->update();
+    //msglink->update();
     
-    if (!msglink->is_paired() && !msglink->is_pairing())
-      msglink->pair_master();
+    /*if (!msglink->is_paired() && !msglink->is_pairing()) {
+      if (msglink->start_pairing("Board ")) {
+
+      }
+    }*/
+
+    recv_msg_t recv_msg;
+    if (get_inbound_message(&recv_msg)) {
+
+      dispose_msg(recv_msg);
+    }
+
+    
+    if (send.isReady()) {
+      uint8_t buf[4000];
+      for (int i = 0; i < 4000; i++)
+        buf[i] = i;
+      msg_t msg = {
+        .mac = board_mac,
+        .type = 0,
+        .data = buf,
+        .len = 4000,
+        .priority = 0,
+        .retries = 4
+      };
+      uint8_t buf2[300];
+      for (int i = 0; i < 300; i++)
+        buf2[i] = i;
+      msg_t msg2 = {
+        .mac = board_mac,
+        .type = 1,
+        .data = buf2,
+        .len = 300,
+        .priority = 0,
+        .retries = 4
+      };
+      send_msg(msg);
+      send_msg(msg2);
+    }
 
     rate.sleep();
   }

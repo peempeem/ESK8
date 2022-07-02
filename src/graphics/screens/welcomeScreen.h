@@ -23,6 +23,7 @@ class WelcomeScreen : public Screen {
 
     private:
         Timer fade_in, circles;
+        bool start = true;
 
         int circle_radius = load_circle_max + circle_space;
 };

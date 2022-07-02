@@ -20,7 +20,7 @@ class PVar {
 
         bool write() {
             if (!filesys.writeFile(_name, (uint8_t*) &data, sizeof(T))) {
-                log(ERROR, _name, "Couldn't write to file");
+                log(ERROR, _name, "Could not write to file");
                 return false;
             }
             return true;

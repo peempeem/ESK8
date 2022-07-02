@@ -9,7 +9,7 @@ class GUI {
         Rate refreshRate = Rate(60);
         NotificationBar notifications;
 
-        GUI(int rotation=2, int notificaitonHeight=32, int colorDepth=16);
+        GUI(int rotation=2, int notificaitonHeight=32, int colorDepth=8);
 
         bool containsScreen(Screen* screen);
         void addScreen(Screen* screen);

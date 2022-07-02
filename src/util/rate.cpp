@@ -1,6 +1,7 @@
 #include "rate.h"
 #include <Arduino.h>
 
+
 /*
  * DESCRIPTION: Default Rate class constructor. Rate is disabled out 
  *              of the box.
@@ -81,33 +82,41 @@ float Rate::getStageSin(bool noChange) { return sin(getStage(noChange) * 2 * PI)
  */
 float Rate::getStageCos(bool noChange) { return cos(getStage(noChange) * 2 * PI); }
 
-Timer::Timer() { }
+
+Timer::Timer() { ring_time = 0; }
 
 Timer::Timer(int ms) { set(ms); }
 
-bool Timer::is_set() { return _is_set; }
-
-void Timer::set(int ms) {
+void Timer::set(int ms, bool fixed) {
+    if (_fixed)
+        return;
     start_time = millis();
     ring_time = ms + start_time;
-    _is_set = true;
+    silenced = false;
+    _fixed = fixed;
 }
 
 bool Timer::is_ringing() {
-    if (_is_set && millis() >= ring_time)
+    if (!silenced && millis() >= ring_time) {
+        _fixed = false;
         return true;
+    }
     return false;
 }
 
-void Timer::ring() { ring_time == millis(); }
+void Timer::ring() {
+    ring_time == millis();
+    _fixed = false;
+    silenced = false;
+}
+
+void Timer::silence() { silenced = true; }
 
 float Timer::progress() {
-    if (_is_set) {
-        int time = millis();
-        if (time >= ring_time)
-            return 1;
-        else
-            return (time - start_time) / (float) (ring_time - start_time);
-    }
+    int time = millis();
+    if (time >= ring_time)
+        return 1;
+    else
+        return (time - start_time) / (float) (ring_time - start_time);
     return 0;
 }
