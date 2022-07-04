@@ -20,11 +20,6 @@ RGBIcon* rgbIcon;
 const static uint8_t b_mac[6] = {0x08, 0x3a, 0xf2, 0x69, 0xd7, 0x58};
 MAC board_mac(b_mac);
 
-void update_gui(void* data) {
-  while (true)
-    gui->update(true);   
-}
-
 void update_controller(void* data) {
   while (true)
     controller.update(true);
@@ -50,7 +45,7 @@ void setup() {
   memcpy(peer.peer_addr, b_mac, 6);
   add_peer(&peer);
   
-  whitelist.add(board_mac);
+  get_whitelist()->add(board_mac);
 
   gui = new GUI();
   welcomeScreen = new WelcomeScreen();
@@ -70,7 +65,6 @@ void setup() {
   connectScreen->wifi.linearCycle = false;
   connectScreen->setVisability(VISABLE);
 
-  xTaskCreatePinnedToCore(update_gui, "gui_task", 4096, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(update_controller, "controller_task", 2048, NULL, 2, NULL, 0);
 }
 
@@ -118,6 +112,7 @@ float speed = 0.0f;
 Timer dc_timer;
 Timer home_timer;
 Rate send(0.2f);
+Rate send2(30.0f);
 
 void loop() {
   if (rate.isReady()) {
@@ -228,6 +223,38 @@ void loop() {
       send_msg(msg2);
     }
 
-    rate.sleep();
+    
+
+    //rate.sleep();
+    
+    int rssi = get_whitelist()->get_rssi(board_mac);
+
+    if (rssi > 15) {
+      gui->notifications.wifi.showIcon(&gui->notifications.wifi.wifiFull);
+    } else if (rssi > 5) {
+      gui->notifications.wifi.showIcon(&gui->notifications.wifi.wifi3);
+    } else if (rssi > 0) {
+      gui->notifications.wifi.showIcon(&gui->notifications.wifi.wifi2);
+    } else if (rssi > -100) {
+      gui->notifications.wifi.showIcon(&gui->notifications.wifi.wifi1);
+    } else {
+      gui->notifications.wifi.showIcon(&gui->notifications.wifi.wifiNone);
+    }
+
+    
   }
+  if (send2.isReady()) {
+    msg_t msg = {
+      .mac = board_mac,
+      .type = 2,
+      .data = NULL,
+      .len = 0,
+      .priority = 0,
+      .retries = 0
+    };
+    send_msg(msg);
+  }
+
+  gui->update();
+  sender_update();
 }

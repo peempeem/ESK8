@@ -2,49 +2,63 @@
 
 const static char* LOG_HEADER = "ESPNOW";
 
+typedef struct {
+    uint16_t frame_head;
+    uint16_t duration;
+    uint8_t destination_address[6];
+    uint8_t source_address[6];
+    uint8_t broadcast_address[6];
+    uint16_t sequence_control;
+
+    uint8_t category_code;
+    uint8_t organization_identifier[3]; // 0x18fe34
+    uint8_t random_values[4];
+    struct {
+        uint8_t element_id;                 // 0xdd
+        uint8_t lenght;                     //
+        uint8_t organization_identifier[3]; // 0x18fe34
+        uint8_t type;                       // 4
+        uint8_t version;
+        uint8_t body[0];
+    } vendor_specific_content;
+} __attribute__ ((packed)) espnow_frame_format_t;
+
+
 InboundMessages inbound;
 OutboundMessages outbound;
-
-typedef struct RECV_CB_MSGS {
-    MAC mac;
-    buf_t buf;
-} recv_cb_msgs_t;
-
-std::queue<recv_cb_msgs_t> recv_cb_msgs;
+Whitelist whitelist;
 
 
-void sender_thread(void* data) {
-    while (true) {
-        outbound.update();
-        vTaskDelay(1 / portTICK_PERIOD_MS);
-    }
+Whitelist* get_whitelist() {
+    return &whitelist;
+}
+
+
+void sender_update() {
+    outbound.update();
 }
 
 void send_cb(const uint8_t* mac, esp_now_send_status_t status) {
-    log(DEBUG, "SEND CB", "SEND CB");
-    MAC recv_mac(mac);
+    MAC receiver(mac);
 
-    outbound.approve(recv_mac, status == ESP_NOW_SEND_SUCCESS);
+    outbound.approve(receiver, status == ESP_NOW_SEND_SUCCESS);
 }
 
 void recv_cb(const uint8_t* mac, const uint8_t* data, int len) {
+    MAC sender(mac);
+    if (!whitelist.contains(sender))
+        return;
+    
+    wifi_promiscuous_pkt_t* promiscuous_pkt = (wifi_promiscuous_pkt_t*)(data - sizeof(wifi_pkt_rx_ctrl_t) - sizeof(espnow_frame_format_t));
+    whitelist.set_rssi(sender, promiscuous_pkt->rx_ctrl.rssi);
+    
     send_msg_t* sent_msg = (send_msg_t*) data;
     if (len == 0 || 
         len < sizeof(SEND_MSG::HEADER))
         return;
 
     inbound.preen();
-    inbound.add(recv_cb_msgs.front().mac, sent_msg);
-}
-
-void promiscuous_rx_cb(void* buf, wifi_promiscuous_pkt_type_t type) {
-
-    // All espnow traffic uses action frames which are a subtype of the mgmnt frames so filter out everything else.
-    if (type != WIFI_PKT_MGMT)
-        return;
-
-    wifi_promiscuous_pkt_t* pkt = (wifi_promiscuous_pkt_t*) buf;
-    //log(DEBUG, "RSSI", pkt->rx_ctrl.rssi);
+    inbound.add(sender, sent_msg);
 }
 
 bool espnow_init() {    
@@ -63,15 +77,7 @@ bool espnow_init() {
         log(ERROR, LOG_HEADER, "Failed to register recv callback");
         return false;
     }
-    
-    if (esp_wifi_set_promiscuous(true) != ESP_OK)
-        log(ERROR, LOG_HEADER, "Failed to set promiscuous mode");
-    
-    if (esp_wifi_set_promiscuous_rx_cb(&promiscuous_rx_cb))
-        log(ERROR, LOG_HEADER, "Failed to register promiscuous_rx callback");
-        
-    
-    xTaskCreate(sender_thread, "sender_thread", 4096, NULL, 5, NULL);
+
     return true;
 }
 
@@ -88,13 +94,15 @@ bool add_peer(esp_now_peer_info_t* peer) {
     return true;
 }
 
-void send_msg(msg_t& msg) {
-    msg.type += 0;
-    outbound.send(msg);
+bool send_msg(msg_t& msg) {
+    msg.type += 10;
+    return outbound.send(msg);
 }
 
 bool get_inbound_message(recv_msg_t* msg) {
-    return inbound.get(msg);
+    bool ret = inbound.get(msg);
+    msg->type -= 10;
+    return ret;
 }
 
 void dispose_msg(recv_msg_t& msg) {

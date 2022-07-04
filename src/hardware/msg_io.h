@@ -36,38 +36,59 @@ class MAC {
         uint8_t mac[MAC_SIZE];
 };
 
+class MACConnection {
+    public:
+        int timeout = 5000;
+
+        MACConnection(MAC& mac);
+
+        bool is(MAC& mac);
+        void set_rssi(int rssi);
+        int get_rssi();
+
+    private:
+        MAC mac;
+        int rssi;
+        int last;
+};
+
+class Whitelist {
+    public:
+        Whitelist();
+
+        void add(MAC& mac);
+        void remove(MAC& mac);
+        bool contains(MAC& mac);
+        void set_rssi(MAC& mac, int rssi);
+        int get_rssi(MAC& mac);
+    
+    private:
+        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
+        std::list<MACConnection> connections;
+
+        bool _get(MAC& mac, std::list<MACConnection>::iterator& it);
+};
+
 struct buf_t {
     uint8_t* data;
     int len;
 };
-
-#define SEND_MSG_FIRST_HEADER   8
-#define SEND_MSG_NEXT_HEADER    4
 
 typedef struct SEND_MSG {
     struct HEADER {
         uint16_t id;
         uint8_t pkt;
         uint8_t len;
+        uint16_t type;
+        uint16_t size;
     } header;
-    union DATA {
-        struct FIRST {
-            struct HEADER {
-                uint16_t type;
-                uint16_t size;
-            } header;
-            uint8_t data[ESP_NOW_MAX_SIZE - SEND_MSG_FIRST_HEADER];
-        } first;
-        struct NEXT {
-            uint8_t data[ESP_NOW_MAX_SIZE - SEND_MSG_NEXT_HEADER];
-        } next;
-    } data;
+    uint8_t data[ESP_NOW_MAX_SIZE - sizeof(SEND_MSG::HEADER)];
 } send_msg_t;
 
 typedef struct RECV_MSG {
     MAC mac;
-    int type;
-    int len;
+    uint16_t type;
+    uint16_t len;
     uint8_t* data;
 } recv_msg_t;
 
@@ -93,14 +114,16 @@ class RecvMsgBuilder {
         bool is_built();
 
     private:
-        int id;
-        int current_pkt;
-        int type;
-        int current_size;
-        int max_size;
+        uint16_t id;
+        uint8_t current_pkt;
+        uint16_t type;
+        uint16_t current_size;
+        uint16_t max_size = -1;
         uint8_t* buffer;
+        bool zero_size = false;
         int last;
         bool built = false;
+        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
 };
 
 class RecvMsgBuilderList {
@@ -130,20 +153,7 @@ class InboundMessages {
 
     private:
         std::queue<recv_msg_t> msgs;
-        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
         std::list<RecvMsgBuilderList> inbound;
-};
-
-class Whitelist {
-    public:
-        Whitelist();
-
-        void add(MAC& mac);
-        void remove(MAC& mac);
-        bool contains(MAC& mac);
-    
-    private:
-        std::list<MAC> whitelist;
 };
 
 class SendMessage {
@@ -176,6 +186,7 @@ class MACSendMessages {
         void approve(bool approve);
         bool is_ready();
         void set_ready(bool ready);
+        int current_msgs_count();
     
     private:
         int last;
@@ -185,9 +196,11 @@ class MACSendMessages {
 
 class OutboundMessages {
     public:
+        int max_mac_msgs = 20;
+
         OutboundMessages();
 
-        void send(msg_t& msg);
+        bool send(msg_t& msg);
         void update();
         void approve(MAC& mac, bool approve);
         bool is_ready(MAC& mac);
@@ -195,6 +208,8 @@ class OutboundMessages {
     private:
         uint16_t id = 0;
         std::list<MACSendMessages> outbound;
+
+        bool _get(MAC& mac, std::list<MACSendMessages>::iterator& it);
 };
 
 #endif

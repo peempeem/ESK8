@@ -28,7 +28,7 @@ void setup() {
   memcpy(peer.peer_addr, c_mac, 6);
   add_peer(&peer);
   
-  whitelist.add(controller_mac);
+  get_whitelist()->add(controller_mac);
 }
 
 Rate main_rate(100);
@@ -39,6 +39,18 @@ void loop() {
   if (main_rate.isReady()) {
     if (debug.isReady())
       controller.printStats();
+
+    if (send.isReady()) {
+      msg_t msg = {
+        .mac = controller_mac,
+        .type = 0,
+        .data = NULL,
+        .len = 0,
+        .priority = 0,
+        .retries = 4
+      };
+      send_msg(msg);
+    }
     
     recv_msg_t recv_msg;
     if (get_inbound_message(&recv_msg)) {
@@ -74,10 +86,13 @@ void loop() {
           log(DEBUG, "test 1", "passed");
         else
           log(DEBUG, "test 1", "failed");
+      } else if (recv_msg.type == 2) {
+        log(DEBUG, "test 3", "recv ", false);
+        logc(get_whitelist()->get_rssi(controller_mac));
       }
       dispose_msg(recv_msg);
     }
-    
-    main_rate.sleep();
   }
+
+  sender_update();
 }

@@ -1,4 +1,5 @@
 #include "msg_io.h"
+#include <new>
 
 
 // MAC class
@@ -42,52 +43,140 @@ void MAC::print() {
     }
 }
 
+
+// MACConnection
+MACConnection::MACConnection(MAC& mac) {
+    this->mac.set(mac);
+    last = millis();
+}
+
+bool MACConnection::is(MAC& mac) {
+    return this->mac.is(mac);
+}
+
+void MACConnection::set_rssi(int rssi) {
+    this->rssi = rssi;
+    last = millis();
+}
+
+int MACConnection::get_rssi() {
+    if (millis() - last >= timeout)
+        return -100;
+    return rssi;
+}
+
+
+// Whitelist
+Whitelist::Whitelist() {
+
+}
+
+void Whitelist::add(MAC& mac) {
+    if (!contains(mac))
+        connections.emplace_back(mac);
+}
+
+void Whitelist::remove(MAC& mac) {
+    std::list<MACConnection>::iterator it;
+    if (_get(mac, it))
+        connections.erase(it);
+}
+
+bool Whitelist::contains(MAC& mac) {
+    std::list<MACConnection>::iterator it;
+    return _get(mac, it);
+}
+
+void Whitelist::set_rssi(MAC& mac, int rssi) {
+    std::list<MACConnection>::iterator it;
+    if (_get(mac, it))
+        it->set_rssi(rssi);
+}
+
+int Whitelist::get_rssi(MAC& mac) {
+    std::list<MACConnection>::iterator it;
+    if (_get(mac, it))
+        return it->get_rssi();
+    return -100;
+}
+
+bool Whitelist::_get(MAC& mac, std::list<MACConnection>::iterator& it) {
+    for (it = connections.begin(); it != connections.end(); it++) {
+        if (it->is(mac))
+            return true;
+    }
+    return false;
+}
+
+
 // RecvMsgBuilder
 RecvMsgBuilder::RecvMsgBuilder(send_msg_t* msg) {
     if (msg->header.pkt == 0) {
-        id = (int) msg->header.id;
-        type = (int) msg->data.first.header.type;
-        max_size = (int) msg->data.first.header.size;
-        current_size = min((int) msg->header.len, max_size);
-        current_pkt = 0;
-        buffer = new uint8_t[max_size];
-        memcpy(buffer, msg->data.first.data, current_size);
+        id = msg->header.id;
+        current_pkt = msg->header.pkt;
+        type = msg->header.type;
+        current_size = (uint16_t) min((int) msg->header.len, (int) msg->header.size);
+        max_size = msg->header.size;
+        
+        if (max_size == 0) {
+            buffer = NULL;
+            zero_size = true;
+        } else {
+            buffer = new (std::nothrow) uint8_t[max_size];
+            if (buffer != NULL)
+                memcpy(buffer, msg->data, current_size);
+            else
+                max_size = -1;
+        }
+        
         last = millis();
-    } else
-        max_size = -1;
+    }
 }
 
 bool RecvMsgBuilder::add(send_msg_t* msg) {
+    portENTER_CRITICAL(&spinlock);
     if (max_size != -1 && 
         msg->header.pkt == current_pkt + 1 &&
-        id == (int) msg->header.id) {
-        int copy_size = min((int) msg->header.len, max_size - current_size);
-        memcpy(buffer + current_size, msg->data.next.data, copy_size);
+        id == (int) msg->header.id && 
+        !zero_size) {
+        uint16_t copy_size = (uint16_t) min((int) msg->header.len, max_size - current_size);
+        memcpy(buffer + (int) current_size, msg->data, (int) copy_size);
         current_size += copy_size;
         current_pkt++;
         last = millis();
+        portEXIT_CRITICAL(&spinlock);
         return true;
-    }    
+    }
+    portEXIT_CRITICAL(&spinlock);
     return false;
 }
 
 bool RecvMsgBuilder::get(recv_msg_t* msg) {
+    portENTER_CRITICAL(&spinlock);
     if (max_size != -1 && current_size >= max_size) {
         msg->type = type;
         msg->data = buffer;
         msg->len = max_size;
         built = true;
+        portEXIT_CRITICAL(&spinlock);
         return true;
     }
+    portEXIT_CRITICAL(&spinlock);
     return false;
 }
 
 bool RecvMsgBuilder::is_expired() {
-    return (millis() - last >= timeout) || (max_size == - 1);
+    bool ret;
+    portENTER_CRITICAL(&spinlock);
+    ret = (millis() - last >= timeout) || (max_size == - 1);
+    portEXIT_CRITICAL(&spinlock);
+    return ret;
 }
 
 void RecvMsgBuilder::clear() {
+    portENTER_CRITICAL(&spinlock);
     max_size = -1;
+    portEXIT_CRITICAL(&spinlock);
     delete[] buffer;
 }
 
@@ -110,11 +199,8 @@ void RecvMsgBuilderList::add(send_msg_t* msg) {
             break;
     }
     // check if new message
-    if (it == builders.end() && msg->header.pkt == 0) {
-        RecvMsgBuilder recv(msg);
-        builders.push_back(recv);
-    }
-        
+    if (it == builders.end() && msg->header.pkt == 0)
+        builders.emplace_back(msg);
     last = millis();
 }
 
@@ -143,6 +229,7 @@ void RecvMsgBuilderList::preen() {
 bool RecvMsgBuilderList::expired() {
     return millis() - last >= timeout;
 }
+
 
 // InboundMessages
 InboundMessages::InboundMessages() {
@@ -188,35 +275,6 @@ bool InboundMessages::get(recv_msg_t* msg) {
     return false;
 }
 
-// Whitelist
-Whitelist::Whitelist() {
-
-}
-
-void Whitelist::add(MAC& mac) {
-    if (!contains(mac))
-        whitelist.push_back(mac);
-}
-
-void Whitelist::remove(MAC& mac) {
-    std::list<MAC>::iterator it;
-    for (it = whitelist.begin(); it != whitelist.end(); it++) {
-        if (it->is(mac)) {
-            whitelist.erase(it);
-            break;
-        }
-    }
-}
-
-bool Whitelist::contains(MAC& mac) {
-    std::list<MAC>::iterator it;
-    for (it = whitelist.begin(); it != whitelist.end(); it++) {
-        if (it->is(mac))
-            return true;
-    }
-    return false;
-}
-
 
 // SendMessage
 SendMessage::SendMessage(int id, msg_t& msg) {
@@ -224,34 +282,39 @@ SendMessage::SendMessage(int id, msg_t& msg) {
     this->retries = 0;
     max_retries = retries;
 
-    int size = min(SEND_MSG_FIRST_HEADER + (int) msg.len, ESP_NOW_MAX_SIZE);
-    send_msg_t* send_msg = (send_msg_t*) new uint8_t[size];
+    uint16_t size = (uint16_t) min((int) sizeof(SEND_MSG::HEADER) + (int) msg.len, ESP_NOW_MAX_SIZE);
+    send_msg_t* send_msg = (send_msg_t*) new (std::nothrow) uint8_t[size];
+    if (send_msg == NULL)
+        return;
+    
     send_msg->header.id = (uint16_t) id;
     send_msg->header.pkt = (uint8_t) 0;
-    int copy_size = size - SEND_MSG_FIRST_HEADER;
+    uint16_t copy_size = size - (uint16_t) sizeof(SEND_MSG::HEADER);
     send_msg->header.len = (uint8_t) copy_size;
-    send_msg->data.first.header.type = msg.type;
-    send_msg->data.first.header.size = msg.len;
-    memcpy(send_msg->data.first.data, msg.data, copy_size);
+    send_msg->header.type = msg.type;
+    send_msg->header.size = msg.len;
+    memcpy(send_msg->data, msg.data, (int) copy_size);
     buf_t buf = {
         .data = (uint8_t*) send_msg,
-        .len = size
+        .len = (int) size
     };
     parts.push(buf);
 
-    int bytes = copy_size;
-    uint8_t pkt = 1;
-    while (bytes < msg.len) {
-        size = min(SEND_MSG_NEXT_HEADER + (int) msg.len - bytes, ESP_NOW_MAX_SIZE);
+    int bytes = (int) copy_size;
+    uint8_t pkt = (uint8_t) 1;
+    while (bytes < (int) msg.len) {
+        size = (uint16_t) min((int) sizeof(SEND_MSG::HEADER) + (int) msg.len - bytes, ESP_NOW_MAX_SIZE);
         send_msg_t* send_msg = (send_msg_t*) new uint8_t[size];
         send_msg->header.id = (uint16_t) id;
         send_msg->header.pkt = pkt++;
-        copy_size = size - SEND_MSG_NEXT_HEADER;
-        send_msg->header.len = (uint16_t) copy_size;
-        memcpy(send_msg->data.next.data, msg.data + bytes, copy_size);
+        copy_size = size - (uint16_t) sizeof(SEND_MSG::HEADER);
+        send_msg->header.len = (uint8_t) copy_size;
+        send_msg->header.type = msg.type;
+        send_msg->header.size = msg.len;
+        memcpy(send_msg->data, msg.data + bytes, (int) copy_size);
         buf.data = (uint8_t*) send_msg;
-        buf.len = size;
-        bytes += copy_size;
+        buf.len = (int) size;
+        bytes += (int) copy_size;
         parts.push(buf);
     }
 
@@ -331,7 +394,7 @@ void MACSendMessages::approve(bool approve) {
 }
 
 bool MACSendMessages::is_ready() {
-    if (millis() - last > RESEND_TIMEOUT) {
+    if (millis() - last >= RESEND_TIMEOUT) {
         last = millis();
         return true;
     }
@@ -343,28 +406,29 @@ void MACSendMessages::set_ready(bool ready) {
     last = millis();
 }
 
+int MACSendMessages::current_msgs_count() {
+    return msgs.size();
+}
 
 // OutboundMessages
 OutboundMessages::OutboundMessages() {
 
 }
 
-void OutboundMessages::send(msg_t& msg) {
-    bool new_mac = true;
+bool OutboundMessages::send(msg_t& msg) {
     std::list<MACSendMessages>::iterator it;
-    for (it = outbound.begin(); it != outbound.end(); it++) {
-        if (it->mac.is(msg.mac)) {
-            it->create_msg(id++, msg);
-            new_mac = false;
-            break;
-        }
+    if (_get(msg.mac, it)) {
+        if (it->current_msgs_count() >= max_mac_msgs)
+                return false;
+        it->create_msg(id++, msg);
+        return true;
     }
-    if (new_mac) {
-        MACSendMessages macsm;
-        macsm.mac.set(msg.mac);
-        macsm.create_msg(id++, msg);
-        outbound.push_back(macsm);
-    }
+    
+    MACSendMessages macsm;
+    macsm.mac.set(msg.mac);
+    macsm.create_msg(id++, msg);
+    outbound.push_back(macsm);
+    return true;
 }
 
 void OutboundMessages::update() {
@@ -384,22 +448,21 @@ void OutboundMessages::update() {
 
 void OutboundMessages::approve(MAC& mac, bool approve) {
     std::list<MACSendMessages>::iterator it;
-    for (it = outbound.begin(); it != outbound.end(); it++) {
-        if (it->mac.is(mac)) {
-            it->approve(approve);
-            break;
-        }
-    }
+    if (_get(mac, it))
+        it->approve(approve);
 }
 
 bool OutboundMessages::is_ready(MAC& mac) {
-    bool ready;
     std::list<MACSendMessages>::iterator it;
+    if (_get(mac, it))
+        return it->is_ready();
+    return false;
+}
+
+bool OutboundMessages::_get(MAC& mac, std::list<MACSendMessages>::iterator& it) {
     for (it = outbound.begin(); it != outbound.end(); it++) {
-        if (it->mac.is(mac)) {
-            ready = it->is_ready();
-            break;
-        }
+        if (it->mac.is(mac))
+            return true;
     }
-    return ready;
+    return false;
 }
