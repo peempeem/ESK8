@@ -1,73 +1,15 @@
 #ifndef MSG_IO_H
 #define MSG_IO_H
 
-#include "../util/Log.h"
-#include <Arduino.h>
-#include <list>
+#include "mac.h"
 #include <queue>
-#include <string>
 #include <esp_wifi.h>
 #include <esp_now.h>
 
-#define MAC_SIZE            6
+
 #define ESP_NOW_MAX_SIZE    250
-
-
 #define RESEND_TIMEOUT      500
 
-
-typedef unsigned int uint;
-
-class MAC {
-    public:
-        MAC();
-        MAC(const uint8_t* mac);
-
-        void set(const uint8_t* mac);
-        void set(MAC& mac);
-        uint8_t* get();
-        bool is(const uint8_t* mac);
-        bool is(MAC& mac);
-        bool is(MAC* mac);
-
-        void print();
-
-    private:
-        uint8_t mac[MAC_SIZE];
-};
-
-class MACConnection {
-    public:
-        int timeout = 5000;
-
-        MACConnection(MAC& mac);
-
-        bool is(MAC& mac);
-        void set_rssi(int rssi);
-        int get_rssi();
-
-    private:
-        MAC mac;
-        int rssi;
-        int last;
-};
-
-class Whitelist {
-    public:
-        Whitelist();
-
-        void add(MAC& mac);
-        void remove(MAC& mac);
-        bool contains(MAC& mac);
-        void set_rssi(MAC& mac, int rssi);
-        int get_rssi(MAC& mac);
-    
-    private:
-        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
-        std::list<MACConnection> connections;
-
-        bool _get(MAC& mac, std::list<MACConnection>::iterator& it);
-};
 
 struct buf_t {
     uint8_t* data;

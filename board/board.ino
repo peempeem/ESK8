@@ -1,7 +1,7 @@
 #include "Controller.h"
 #include "util/FileSystem.h"
 //#include "hardware/connection.h"
-#include "hardware/espnow.h"
+#include "hardware/wifi/espnow/espnow.h"
 
 const static uint8_t c_mac[6] = {0x94, 0xb9, 0x7e, 0xd2, 0x28, 0x84};
 MAC controller_mac(c_mac);
