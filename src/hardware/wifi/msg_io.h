@@ -6,10 +6,8 @@
 #include <esp_wifi.h>
 #include <esp_now.h>
 
-
 #define ESP_NOW_MAX_SIZE    250
 #define RESEND_TIMEOUT      500
-
 
 struct buf_t {
     uint8_t* data;
@@ -28,29 +26,51 @@ typedef struct SEND_MSG {
 } send_msg_t;
 
 typedef struct RECV_MSG {
-    MAC mac;
     uint16_t type;
     uint16_t len;
     uint8_t* data;
 } recv_msg_t;
 
-typedef struct MSG {
-    MAC mac;
-    uint16_t type;
-    uint8_t* data;
-    uint16_t len;
-    int priority;
-    int retries;
-} msg_t;
+typedef struct {
+    uint16_t frame_head;
+    uint16_t duration;
+    uint8_t destination_address[6];
+    uint8_t source_address[6];
+    uint8_t broadcast_address[6];
+    uint16_t sequence_control;
 
-class RecvMsgBuilder {
+    uint8_t category_code;
+    uint8_t organization_identifier[3]; // 0x18fe34
+    uint8_t random_values[4];
+    struct {
+        uint8_t element_id;                 // 0xdd
+        uint8_t length;                     //
+        uint8_t organization_identifier[3]; // 0x18fe34
+        uint8_t type;                       // 4
+        uint8_t version;
+        uint8_t body[0];
+    } vendor_specific_content;
+} __attribute__ ((packed)) espnow_frame_format_t;
+
+class Lock {
+    public:
+        Lock();
+
+        void lock();
+        void unlock();
+
+    private:
+        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
+};
+
+class RecvMsgBuilder : public Lock {
     public:
         int timeout = 3000;
 
         RecvMsgBuilder(send_msg_t* msg);
 
         bool add(send_msg_t* msg);
-        bool get(recv_msg_t* msg);
+        bool get(recv_msg_t& msg);
         bool is_expired();
         void clear();
         bool is_built();
@@ -65,18 +85,16 @@ class RecvMsgBuilder {
         bool zero_size = false;
         int last;
         bool built = false;
-        portMUX_TYPE spinlock = portMUX_INITIALIZER_UNLOCKED;
 };
 
-class RecvMsgBuilderList {
+class RecvMessages {
     public:
-        MAC mac;
         int timeout = 5000;
 
-        RecvMsgBuilderList(MAC& mac);
+        RecvMessages();
 
         void add(send_msg_t* msg);
-        bool get(recv_msg_t* msg);
+        bool get(recv_msg_t& msg);
         void preen();
         bool expired();
 
@@ -85,44 +103,28 @@ class RecvMsgBuilderList {
         int last;
 };
 
-class InboundMessages {
-    public:
-        InboundMessages();
-
-        void add(MAC& mac, send_msg_t* msg);
-        void preen();
-        bool get(recv_msg_t* msg);
-
-    private:
-        std::queue<recv_msg_t> msgs;
-        std::list<RecvMsgBuilderList> inbound;
-};
-
 class SendMessage {
     public:
-        SendMessage(int id, msg_t& msg);
+        SendMessage(uint16_t id, uint16_t type, uint8_t* data, uint16_t len, int retries);
 
         void clear();
-        int get_priority();
         bool get_msg(buf_t* msg);
         bool next();
+        void try_again();
         bool is_stale();
         bool is_empty();
 
     private:
-        int priority;
         int retries;
         int max_retries;
         std::queue<buf_t> parts;
 };
 
-class MACSendMessages {
+class SendMessages {
     public:
-        MAC mac;
+        SendMessages();
 
-        MACSendMessages();
-
-        void create_msg(int id, msg_t& msg);
+        void create_msg(uint16_t type, uint8_t* data, uint16_t len, int retries);
         bool get_msg(buf_t* msg);
         void preen();
         void approve(bool approve);
@@ -131,27 +133,10 @@ class MACSendMessages {
         int current_msgs_count();
     
     private:
+        uint16_t id = 0;
         int last;
         bool ready = true;
         std::list<SendMessage> msgs;
-};
-
-class OutboundMessages {
-    public:
-        int max_mac_msgs = 20;
-
-        OutboundMessages();
-
-        bool send(msg_t& msg);
-        void update();
-        void approve(MAC& mac, bool approve);
-        bool is_ready(MAC& mac);
-        
-    private:
-        uint16_t id = 0;
-        std::list<MACSendMessages> outbound;
-
-        bool _get(MAC& mac, std::list<MACSendMessages>::iterator& it);
 };
 
 #endif

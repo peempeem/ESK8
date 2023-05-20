@@ -46,8 +46,11 @@ static void log(int type, const char* header, T data, bool nl=true) {
         }
         Serial.print("] [");
         Serial.print(header);
-        for (int i = 0; i < HEAD_PAD - strlen(header); i++)
+        int spaces = HEAD_PAD - strlen(header);
+        if (spaces > 0) {
+            for (int i = 0; i < spaces; i++)
             Serial.write(" ");
+        }
         Serial.print("]: ");
         Serial.print(data);
         if (nl)
@@ -66,12 +69,12 @@ static void logc(T data, bool nl=true) {
 
 static void logf() {
     if (Serial)
-        Serial.println("[ FAILED ]");
+        Serial.println(" -> [ FAILED ]");
 }
 
 static void logs() {
     if (Serial)
-        Serial.println("[ SUCCESS ]");
+        Serial.println(" -> [ SUCCESS ]");
 }
 
 template<class T>

@@ -11,6 +11,9 @@ class GUI {
 
         GUI(int rotation=2, int notificaitonHeight=32, int colorDepth=16);
 
+        void display_on();
+        void display_off();
+
         bool containsScreen(Screen* screen);
         void addScreen(Screen* screen);
         void setMainScreen(Screen* screen);

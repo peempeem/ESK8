@@ -29,13 +29,14 @@ class Timer {
         Timer(int ms);
 
         void set(int ms, bool fix=false);
+        void reset();
         bool is_ringing();
         void ring();
         void silence();
         float progress();
     
     private:
-        int start_time, ring_time;
+        int start_time, ring_time, ms;
         bool silenced = false;
         bool _fixed = false;
 };

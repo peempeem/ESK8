@@ -91,9 +91,16 @@ void Timer::set(int ms, bool fixed) {
     if (_fixed)
         return;
     start_time = millis();
+    this->ms = ms;
     ring_time = ms + start_time;
     silenced = false;
     _fixed = fixed;
+}
+
+void Timer::reset() {
+    bool is_fixed = _fixed;
+    ring();
+    set(ms, is_fixed);
 }
 
 bool Timer::is_ringing() {

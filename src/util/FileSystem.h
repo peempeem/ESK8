@@ -15,7 +15,7 @@ class ESK8FS {
     public:
         ESK8FS() {}
 
-        bool init(bool format=false);
+        bool init(bool format=true);
         bool readFile(const char* path, uint8_t* buf, int size, int seek=0);
         bool writeFile(const char* path, uint8_t* buf, int size, int seek=0);
         bool deleteFile(const char* path);

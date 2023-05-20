@@ -26,6 +26,7 @@ class Button {
         TapEvent    getTapEvent();
         long        pressedElapsedTime();
         long        releasedElapsedTime();
+        void        clearTapEvents();
 
     private:
         int         pin;                    // button pin on board

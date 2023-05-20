@@ -8,7 +8,7 @@
 class ConnectScreen : public Screen {
     public:
         Color textColor = GREEN;
-        String text = "PAIRING";
+        String text;
 
         SkateboardIcon board;
         WiFiIcon wifi;

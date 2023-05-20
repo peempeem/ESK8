@@ -133,3 +133,7 @@ long Button::releasedElapsedTime() {
         return 0;
     return time - lastStateChange;
 }
+
+void Button::clearTapEvents() {
+    tapEvents.clear();
+}

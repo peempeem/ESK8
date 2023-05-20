@@ -1,7 +1,7 @@
 #include "adc.h"
 
 // esp32 analogRead rectifying calibration
-/*const static float adcTable[] = {
+const static float adcTable[] = {
     0,
     0.032626,
     0.033823,
@@ -4098,7 +4098,7 @@
     3.281235,
     3.282315,
     3.3
-};*/
+};
 
 /*
  * DESCRIPTION: Calls Arduino funciton analogRead but then uses adcTable to
@@ -4107,4 +4107,4 @@
  * INPUTS:      pin -   pin number of DAC on board
  * RETURNS:     voltage of pin
  */
-float readAnalog(int pin) { return (analogRead(pin) * 3.3f) / 4096.0f; }
+float readAnalog(int pin) { return adcTable[analogRead(pin)]; }

@@ -6,6 +6,7 @@
 #include "hardware/hardware.h"
 #include "hardware/adc.h"
 #include "hardware/button.h"
+#include "hardware/wifi/MACLinkListener.h"
 
 #define PIN_IN              34  // pin for board input voltage
 #define PIN_POWER           14  // pin for chip voltage
@@ -44,6 +45,7 @@ class Controller : public Hardware {
         bool    powerStateChanged();
         int     powerState();
         void    printStats();
+        void    consumeTaps();
 
     private:
         float   _wheelValue = 0.0f;         // 0 to 1 value of control wheel

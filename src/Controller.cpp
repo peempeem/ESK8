@@ -20,8 +20,8 @@ void Controller::init() {
     rightButton.init();
 
     // set normal performance
-    _powerState = STATE_DISCHARGING;
-    setCpuFrequencyMhz(240);
+    _powerState = STATE_CHARGING;
+    listener()->set_cpu_mhz_safe(240);
 }
 
 void Controller::update(bool sleep) {
@@ -41,10 +41,15 @@ void Controller::update(bool sleep) {
 
             // filter battery voltage and set battery level
             int temp = -18;
-            if (_batteryVoltage <= 3.6f)
-                temp = -10;
-            float newBV = 1 / (1 + exp(temp * (_batteryVoltage - 3.6f)));
-            _batteryLevel = _batteryLevel * 0.6f + 0.4f * newBV;
+            
+            float new_battery_level;
+            if (_batteryVoltage >= 4.1f)
+                new_battery_level = 1;
+            else if (_batteryVoltage <= 3.3f)
+                new_battery_level = 0;
+            else
+                new_battery_level = (-cos(3.9f * (_batteryVoltage - 3.3f)) + 1) / 2.0f;
+            _batteryLevel = _batteryLevel * 0.85f + new_battery_level * 0.15f;
 
             bool newPowerState = STATE_DISCHARGING;
             if (charging)
@@ -57,11 +62,11 @@ void Controller::update(bool sleep) {
             if (newPowerState != _powerState) {
                 switch (newPowerState) {
                     case STATE_DISCHARGING:
-                        setCpuFrequencyMhz(240);
+                        listener()->set_cpu_mhz_safe(240);
                         break;
                     case STATE_CHARGING:
                     case STATE_POWER_SAVING:
-                        setCpuFrequencyMhz(80);
+                        listener()->set_cpu_mhz_safe(80);
                         break;
                 }
                 _powerState = newPowerState;
@@ -110,4 +115,10 @@ void Controller::printStats() {
     logc(" bytes (", false);
     logc(memoryUsagePercent(), false);
     logc("%)");
+}
+
+void Controller::consumeTaps() {
+    mainButton.clearTapEvents();
+    rightButton.clearTapEvents();
+    leftButton.clearTapEvents();
 }

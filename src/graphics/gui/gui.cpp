@@ -23,6 +23,18 @@ GUI::GUI(int rotation, int notificaitonHeight, int colorDepth) {
     notificationSprite->createSprite(notifications.dimensions.width, notifications.dimensions.height);
 }
 
+void GUI::display_on() {
+    digitalWrite(4, HIGH);
+    display->writecommand(ST7789_DISPON);
+    display->writecommand(ST7789_SLPOUT);
+}
+
+void GUI::display_off() {
+    digitalWrite(4, LOW);
+    display->writecommand(ST7789_DISPOFF);
+    display->writecommand(ST7789_SLPIN);
+}
+
 bool GUI::containsScreen(Screen* screen) {
     for (Screen* s : screens) {
         if (s == screen)

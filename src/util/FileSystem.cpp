@@ -3,7 +3,7 @@
 const static char* LOG_HEADER = "FileSystem";
 
 bool ESK8FS::init(bool format) {
-    log(DEBUG, LOG_HEADER, "Loading filesystem -> ", false);
+    log(DEBUG, LOG_HEADER, "Loading filesystem", false);
 
     if (!fs.begin(true, "/spiffs", 32)) {
         logf();

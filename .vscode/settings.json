@@ -66,6 +66,7 @@
         "cinttypes": "cpp",
         "variant": "cpp",
         "list": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "netfwd": "cpp"
     }
 }

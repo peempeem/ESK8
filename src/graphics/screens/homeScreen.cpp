@@ -21,7 +21,7 @@ void HomeScreen::draw(TFT_eSprite* sprite) {
 
     sprite->setFreeFont(&Orbitron_Light_32);
     sprite->setTextDatum(MC_DATUM);
-    sprite->setTextColor(speedColor.as16Bit());
+    sprite->setTextColor(mainTextColor.as16Bit());
     Point center {
         boardBattery.center.x,
         dimensions.height * 0.15f
@@ -34,7 +34,7 @@ void HomeScreen::draw(TFT_eSprite* sprite) {
     );
 
     sprite->setFreeFont(&Orbitron_Light_24);
-    sprite->setTextColor(speedDescColor.as16Bit());
+    sprite->setTextColor(accentTextColor.as16Bit());
     center.y = dimensions.height * 0.3f;
     sprite->drawString(
         speedDesc.c_str(),
@@ -42,6 +42,33 @@ void HomeScreen::draw(TFT_eSprite* sprite) {
         center.y,
         1
     );
+
+    sprite->setTextColor(mainTextColor.as16Bit());
+    center.y = dimensions.height * 0.45f;
+    sprite->drawString(
+        speedMode.c_str(),
+        center.x,
+        center.y,
+        1
+    );
+
+    sprite->setTextColor(mainTextColor.as16Bit());
+    center.y = dimensions.height * 0.6f;
+    sprite->drawString(
+        outbound.c_str(),
+        center.x,
+        center.y,
+        1
+    );
 }
 
 void HomeScreen::setSpeed(float speed) { this->speed = String(fabs(speed), 1); }
+
+void HomeScreen::setSpeedMode(int mode) {
+    speedMode = "M: " + String(mode);
+}
+
+void HomeScreen::setNumOutbound(unsigned num)
+{
+    outbound = "- " + String(num) + " -";
+}
